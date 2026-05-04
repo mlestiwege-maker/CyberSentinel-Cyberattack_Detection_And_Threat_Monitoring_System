@@ -1,3 +1,7 @@
+// CyberSentinel Desktop Application
+// Enterprise threat monitoring and incident management platform
+// Built with Flutter for cross-platform desktop deployment
+
 import 'package:flutter/material.dart';
 import 'core/theme.dart';
 import 'layout/main_layout.dart';
