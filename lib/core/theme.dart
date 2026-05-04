@@ -21,4 +21,20 @@ class AppTheme {
       headlineSmall: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
     ),
   );
+
+  static ThemeData lightTheme = ThemeData(
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: const Color(0xFFF3F5FA),
+    primaryColor: accentBlue,
+    cardColor: Colors.white,
+    colorScheme: const ColorScheme.light(
+      primary: accentBlue,
+      secondary: accentBlue,
+    ),
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(color: Color(0xFF1F2430)),
+      bodySmall: TextStyle(color: Color(0xFF5D6472)),
+      headlineSmall: TextStyle(color: Color(0xFF1F2430), fontWeight: FontWeight.bold),
+    ),
+  );
 }

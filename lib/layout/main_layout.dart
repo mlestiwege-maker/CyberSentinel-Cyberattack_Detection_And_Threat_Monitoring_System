@@ -11,6 +11,7 @@ import '../features/voice/voice_assistant_screen.dart';
 import '../features/incidents/incidents_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../services/app_state.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -168,9 +169,27 @@ class _MainLayoutState extends State<MainLayout> {
             ),
           ),
           const SizedBox(width: 12),
-          _CircleIconButton(icon: Icons.notifications_none, badge: '12'),
+          _CircleIconButton(
+            icon: Icons.notifications_none,
+            badge: '12',
+            onTap: _showNotifications,
+            tooltip: 'Notifications',
+          ),
           const SizedBox(width: 10),
-          _CircleIconButton(icon: Icons.dark_mode_outlined),
+          _CircleIconButton(
+            icon: AppState.instance.isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            onTap: () {
+              AppState.instance.toggleTheme();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppState.instance.isDarkMode ? 'Dark mode enabled' : 'Light mode enabled'),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+              setState(() {});
+            },
+            tooltip: 'Toggle theme',
+          ),
           const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -212,46 +231,100 @@ class _MainLayoutState extends State<MainLayout> {
   Widget _buildContent() {
     return _screens[selectedIndex];
   }
+
+  void _showNotifications() {
+    if (!AppState.instance.notificationsEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Notifications are disabled in Settings')),
+      );
+      return;
+    }
+
+    final notifications = [
+      'High-risk port scan detected from 185.220.101.42',
+      'Brute-force attempt blocked on admin endpoint',
+      'Incident INC-2026-014 moved to In Progress',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.secondaryBlack,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Notifications',
+                style: TextStyle(color: AppTheme.textWhite, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              ...notifications.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Text(item, style: const TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _CircleIconButton extends StatelessWidget {
   final IconData icon;
   final String? badge;
+  final VoidCallback? onTap;
+  final String? tooltip;
 
-  const _CircleIconButton({required this.icon, this.badge});
+  const _CircleIconButton({required this.icon, this.badge, this.onTap, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: AppTheme.secondaryBlack,
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF2A3050)),
-          ),
-          child: Icon(icon, color: AppTheme.textGrey, size: 18),
-        ),
-        if (badge != null)
-          Positioned(
-            right: -2,
-            top: -2,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: AppTheme.dangerRed,
+    return Tooltip(
+      message: tooltip ?? '',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppTheme.secondaryBlack,
                 shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF2A3050)),
               ),
-              child: Text(
-                badge!,
-                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-              ),
+              child: Icon(icon, color: AppTheme.textGrey, size: 18),
             ),
-          ),
-      ],
+            if (badge != null)
+              Positioned(
+                right: -2,
+                top: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.dangerRed,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    badge!,
+                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

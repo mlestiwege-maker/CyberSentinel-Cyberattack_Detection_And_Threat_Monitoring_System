@@ -1,24 +1,43 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../services/app_config.dart';
+import '../../services/app_state.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return _FeatureShell(
-      title: 'Settings',
-      subtitle: 'Application preferences and security options',
-      child: ListView(
-        children: const [
-          _SettingTile(title: 'Dark Mode', subtitle: 'CyberSentinel theme is enabled'),
-          _SettingTile(title: 'Notifications', subtitle: 'Desktop alerts are active'),
-          _SettingTile(title: 'API Endpoint', subtitle: 'http://127.0.0.1:8000'),
-          TwilioSettings(),
-          GroupEmailSettings(),
-          _SettingTile(title: 'Auto Refresh', subtitle: 'Threat feed refreshes every 30s'),
-        ],
+    return AnimatedBuilder(
+      animation: AppState.instance,
+      builder: (context, _) => _FeatureShell(
+        title: 'Settings',
+        subtitle: 'Application preferences and security options',
+        child: ListView(
+          children: [
+            _SettingTile(
+              title: 'Dark Mode',
+              subtitle: 'Toggle light/dark administrator theme',
+              value: AppState.instance.isDarkMode,
+              onChanged: AppState.instance.setDarkMode,
+            ),
+            _SettingTile(
+              title: 'Notifications',
+              subtitle: 'Enable in-app operational notifications',
+              value: AppState.instance.notificationsEnabled,
+              onChanged: AppState.instance.setNotificationsEnabled,
+            ),
+            const _InfoTile(title: 'API Endpoint', subtitle: 'http://127.0.0.1:8000'),
+            const TwilioSettings(),
+            const GroupEmailSettings(),
+            _SettingTile(
+              title: 'Auto Refresh',
+              subtitle: 'Threat feed refreshes every 30s when enabled',
+              value: AppState.instance.autoRefreshEnabled,
+              onChanged: AppState.instance.setAutoRefreshEnabled,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -196,6 +215,7 @@ class _TwilioSettingsState extends State<TwilioSettings> {
                   _acctController.clear();
                   _tokenController.clear();
                   _fromController.clear();
+                  AppConfig.instance.updateTwilio(accountSid: '', authToken: '', from: '');
                 },
                 child: const Text('Clear'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
@@ -211,7 +231,15 @@ class _TwilioSettingsState extends State<TwilioSettings> {
 class _SettingTile extends StatelessWidget {
   final String title;
   final String subtitle;
-  const _SettingTile({required this.title, required this.subtitle});
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SettingTile({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +263,35 @@ class _SettingTile extends StatelessWidget {
               ],
             ),
           ),
-          Switch(value: true, onChanged: (_) {}),
+          Switch(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _InfoTile({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryBlack,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF2A3050)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: const TextStyle(color: AppTheme.textGrey, fontSize: 12)),
         ],
       ),
     );
