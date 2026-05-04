@@ -1,133 +1,104 @@
 # CyberSentinel Frontend
 
-A modern, professional Flutter security dashboard frontend for the CyberSentinel cybersecurity monitoring platform.
+CyberSentinel is a Flutter-based cybersecurity operations dashboard for threat visibility, incident response, team coordination, and alerting.
 
-## 👤 Developer
-**Lestiwege Mufutumari** - Frontend Developer
+## Project repository
 
-## 📋 Features
+`https://github.com/mlestiwege-maker/CyberSentinel-Cyberattack_Detection_And_Threat_Monitoring_System`
 
-- **Real-time Dashboard** - Live threat monitoring and statistics
-- **Threat Feed Table** - Live threat detection with severity levels
-- **Attack Map** - Geo-IP visualization of attack origins
-- **System Resources** - CPU, RAM, DISK, and Network monitoring
-- **Responsive Layout** - Sidebar navigation with clean admin interface
-- **Dark Theme** - Professional cybersecurity UI theme
-- **API Integration** - Connected to FastAPI backend
+## Core features
 
-## 🏗️ Project Structure
+- Live dashboard with threat stats and analytics cards
+- Threat table and attack-map style monitoring views
+- Incident and monitoring screens
+- Defensive terminal simulation tools
+- Twilio SMS sending workflow (via API)
+- Email alert workflow (opens mail client with prefilled recipients)
+- Group email member management in settings
+- Users & roles page with project team ownership mapping
+- Reports page with contributor snapshot and exports list
+- Voice assistant panel (UI workflow)
 
-```
-lib/
-├── main.dart                          # App entry point
-├── core/
-│   ├── theme.dart                     # Dark theme configuration
-│   └── constants.dart                 # App constants
-├── layout/
-│   ├── main_layout.dart               # Main scaffold with sidebar
-│   └── sidebar.dart                   # Navigation sidebar
-├── features/
-│   ├── dashboard/
-│   │   ├── dashboard_screen.dart      # Dashboard main screen
-│   │   └── widgets/
-│   │       ├── stat_card.dart         # Stat card widget
-│   │       ├── threat_table.dart      # Live threat table
-│   │       ├── attack_map.dart        # Geo-IP attack map
-│   │       └── system_stats.dart      # System resource stats
-│   ├── alerts/                        # Alerts feature (future)
-│   ├── monitoring/                    # Monitoring feature (future)
-│   ├── incidents/                     # Incidents feature (future)
-│   ├── reports/                       # Reports feature (future)
-│   └── settings/                      # Settings feature (future)
-├── services/
-│   └── api_service.dart               # API client service
-└── models/
-    └── alert_model.dart               # Alert data model
-```
+## Team and workstream ownership
 
-## 🚀 Getting Started
+- **Project Planning** — Tadiwa Sharara
+- **Backend Development** — Bunu Anesu
+- **Network Monitoring** — Madamu Creig
+- **Machine Learning** — Davison Karamenti
+- **Threat Detection** — Dzimbanhete Bhunu
+- **Frontend Development** — Lestiwege Mufutumari
+- **Admin Features** — Shared team
+- **Notifications** — Shared team
+- **Testing** — Tinashe Matyamaenza
+- **Documentation** — Agatha Katiyo
+
+## Tech stack
+
+- Flutter / Dart
+- `http` for backend and Twilio requests
+- `url_launcher` for email launch (`mailto:`)
+
+## Important app flows
+
+### 1) SMS alerts
+
+1. Open **Settings** → **Twilio Integration**.
+2. Add Twilio `Account SID`, `Auth Token`, and `From Number`.
+3. Open **SMS / Twilio** screen.
+4. Enter destination number and message.
+5. Click **Send SMS**.
+
+### 2) Email alerts to group members
+
+1. Open **Settings** → **Group Email Members**.
+2. Add/remove member emails.
+3. Open **SMS / Twilio** screen.
+4. Click the email button to launch your default mail client for all recipients.
+
+If no group email is added, the default fallback recipient is `mlestiwege@gmail.com`.
+
+## Project structure (high-level)
+
+`lib/`
+- `core/` theme and constants
+- `layout/` shell, sidebar, top bar
+- `features/dashboard/` dashboard and widgets
+- `features/monitoring/` monitor, attack map, defensive console
+- `features/incidents/` incidents view
+- `features/reports/` reports and team snapshot
+- `features/settings/` Twilio + group-email settings
+- `features/users/` users, roles, and team tasks
+- `features/sms/` Twilio/SMS screen
+- `features/voice/` voice assistant screen
+- `services/` API service, Twilio service, runtime app config
+- `models/` alert data model
+
+## Run locally
 
 ### Prerequisites
-- Flutter 3.0+
-- Dart 3.0+
-- FastAPI backend running at `http://127.0.0.1:8000`
 
-### Installation
+- Flutter SDK (3.x)
+- Dart SDK (3.x)
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/cybersentinel_frontend.git
-cd cybersentinel_frontend
-```
+### Commands
 
-2. Install dependencies
 ```bash
 flutter pub get
+flutter run -d linux
 ```
 
-3. Run the app
-```bash
-flutter run -d chrome  # For web
-# or
-flutter run           # For desktop
-```
+You can also run on web or another supported device target.
 
-## 📦 Dependencies
+## Quality checks
 
-- **http**: ^1.1.0 - HTTP client for API requests
-- **google_maps_flutter**: ^2.5.0 - Map widget (future enhancement)
-- **intl**: ^0.19.0 - Internationalization support
-- **cupertino_icons**: ^1.0.2 - iOS icons
+- Analyzer checks are currently clean in this workspace.
+- Latest Linux run completed successfully in the current session.
 
-## 🎨 Theme Colors
+## Notes
 
-- **Primary Black**: #0A0E27
-- **Secondary Black**: #1A1F3A
-- **Accent Blue**: #0099FF
-- **Danger Red**: #FF3333
-- **Warning Orange**: #FF9900
-- **Success Green**: #00DD88
+- Twilio credentials are currently stored in-memory for this UI prototype session.
+- For production, move secrets to secure storage / backend-managed configuration.
 
-## 🔌 API Integration
+## License
 
-The app connects to a FastAPI backend with these endpoints:
-
-- `GET /api/v1/alerts` - Fetch security alerts
-- `GET /api/v1/threats` - Fetch threats
-- `GET /api/v1/incidents` - Fetch incidents
-
-## 📝 Key Components
-
-### Dashboard Screen
-- **Stat Cards**: Display total threats, high-risk alerts, incidents, resolved
-- **Threat Table**: Real-time live threat feed with filters
-- **Attack Map**: Geo-IP visualization of attack origins
-- **System Stats**: CPU, RAM, DISK usage monitoring
-
-### Main Layout
-- **Top Admin Bar**: Search, status indicator, notifications
-- **Sidebar Navigation**: Menu items for different sections
-- **Content Area**: Main feature screens
-
-## 🎯 Next Steps
-
-- [ ] Implement Defensive Terminal
-- [ ] Add Twilio SMS integration
-- [ ] Complete Threat Monitor screen
-- [ ] Implement Incidents management
-- [ ] Create Reports dashboard
-- [ ] Add Settings panel
-- [ ] Implement WebSocket for real-time updates
-
-## 📄 License
-
-This project is part of a university group project.
-
-## 👥 Team
-
-- **Lestiwege Mufutumari** - Frontend (Flutter)
-- **Other members** - Backend, Infrastructure, etc.
-
----
-
-**Built with ❤️ for cybersecurity monitoring**
+Part of a university group cybersecurity project.
