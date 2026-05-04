@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'sidebar.dart';
 import '../core/theme.dart';
 import '../features/dashboard/dashboard_screen.dart';
+import '../features/alerts/alerts_screen.dart';
+import '../features/monitoring/monitoring_screen.dart';
+import '../features/monitoring/attack_map_screen.dart';
+import '../features/monitoring/defensive_console_screen.dart';
+import '../features/incidents/incidents_screen.dart';
+import '../features/reports/reports_screen.dart';
+import '../features/settings/settings_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -12,6 +19,17 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int selectedIndex = 0;
+
+  late final List<Widget> _screens = [
+    const DashboardScreen(),
+    const AlertsScreen(),
+    const MonitoringScreen(),
+    const IncidentsScreen(),
+    const AttackMapScreen(),
+    const DefensiveConsoleScreen(),
+    const ReportsScreen(),
+    const SettingsScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -201,46 +219,6 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Widget _buildContent() {
-    final screens = [
-      const DashboardScreen(),
-      const Center(
-        child: Text(
-          'Threat Monitor',
-          style: TextStyle(color: AppTheme.textWhite),
-        ),
-      ),
-      const Center(
-        child: Text(
-          'Incidents',
-          style: TextStyle(color: AppTheme.textWhite),
-        ),
-      ),
-      const Center(
-        child: Text(
-          'Attack Map',
-          style: TextStyle(color: AppTheme.textWhite),
-        ),
-      ),
-      const Center(
-        child: Text(
-          'Defensive Console',
-          style: TextStyle(color: AppTheme.textWhite),
-        ),
-      ),
-      const Center(
-        child: Text(
-          'Reports',
-          style: TextStyle(color: AppTheme.textWhite),
-        ),
-      ),
-      const Center(
-        child: Text(
-          'Settings',
-          style: TextStyle(color: AppTheme.textWhite),
-        ),
-      ),
-    ];
-
-    return screens[selectedIndex];
+    return _screens[selectedIndex];
   }
 }

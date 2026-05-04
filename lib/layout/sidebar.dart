@@ -15,7 +15,8 @@ class Sidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       ('Dashboard', Icons.dashboard),
-      ('Threat Monitor', Icons.warning),
+      ('Alerts', Icons.notifications_active),
+      ('Threat Monitor', Icons.shield),
       ('Incidents', Icons.error),
       ('Attack Map', Icons.map),
       ('Defensive Console', Icons.terminal),

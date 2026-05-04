@@ -81,37 +81,47 @@ class _AttackMapState extends State<AttackMap> {
   }
 
   Widget _buildWorldMap() {
-    return CustomPaint(
-      painter: WorldMapPainter(attacks),
-      child: Stack(
-        children: [
-          // Attack markers
-          ...attacks.map((attack) {
-            return Positioned(
-              left: (attack['lng'] + 180) / 360 * 400,
-              top: (90 - attack['lat']) / 180 * 300,
-              child: Tooltip(
-                message: '${attack['city']} - ${attack['severity']}',
-                child: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: _getSeverityColor(attack['severity']),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: _getSeverityColor(attack['severity'])
-                            .withOpacity(0.5),
-                        blurRadius: 8,
-                      ),
-                    ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.isFinite ? constraints.maxWidth : 400.0;
+        final height = constraints.maxHeight.isFinite ? constraints.maxHeight : 300.0;
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomPaint(
+              painter: WorldMapPainter(attacks),
+              size: Size(width, height),
+            ),
+            ...attacks.map((attack) {
+              final left = ((attack['lng'] as double) + 180) / 360 * width;
+              final top = (90 - (attack['lat'] as double)) / 180 * height;
+
+              return Positioned(
+                left: left.clamp(0.0, width - 12),
+                top: top.clamp(0.0, height - 12),
+                child: Tooltip(
+                  message: '${attack['city']} - ${attack['severity']}',
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: _getSeverityColor(attack['severity']),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getSeverityColor(attack['severity']).withOpacity(0.5),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-        ],
-      ),
+              );
+            }),
+          ],
+        );
+      },
     );
   }
 
