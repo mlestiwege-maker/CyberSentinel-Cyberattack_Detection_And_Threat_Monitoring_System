@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
+import '../../../services/twilio_service.dart';
+import '../../../services/app_config.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class TwilioPanel extends StatefulWidget {
   const TwilioPanel({super.key});
@@ -18,6 +21,7 @@ class _TwilioPanelState extends State<TwilioPanel> {
     _SmsLog('To: +263771234568', 'Login attempt detected from new device.', 'SENT'),
     _SmsLog('To: +263771234569', 'Incident #INC-2024-001 resolved.', 'SENT'),
   ];
+  bool _isSending = false;
 
   @override
   void dispose() {
@@ -26,17 +30,53 @@ class _TwilioPanelState extends State<TwilioPanel> {
     super.dispose();
   }
 
-  void _sendSms() {
+  Future<void> _sendSms() async {
+    final to = _numberController.text.trim();
+    final message = _messageController.text.trim();
+    if (to.isEmpty || message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please provide number and message')));
+      return;
+    }
+
     setState(() {
-      _logs.insert(
-        0,
-        _SmsLog(
-          'To: ${_numberController.text}',
-          _messageController.text.replaceAll('\n', ' '),
-          'QUEUED',
-        ),
-      );
+      _isSending = true;
+      _logs.insert(0, _SmsLog('To: $to', message.replaceAll('\n', ' '), 'QUEUED'));
     });
+
+    final config = AppConfig.instance;
+    final success = await TwilioService.sendSms(
+      accountSid: config.twilioAccountSid,
+      authToken: config.twilioAuthToken,
+      from: config.twilioFromNumber,
+      to: to,
+      body: message,
+    );
+
+    setState(() {
+      _isSending = false;
+      // update the top log status
+      if (_logs.isNotEmpty) {
+        final updated = _SmsLog(_logs[0].to, _logs[0].message, success ? 'SENT' : 'FAILED');
+        _logs[0] = updated;
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(success ? 'SMS sent' : 'SMS failed')));
+  }
+
+  Future<void> _sendEmail() async {
+    final recipients = AppConfig.instance.groupEmails.isEmpty
+        ? ['mlestiwege@gmail.com']
+        : AppConfig.instance.groupEmails;
+    final toEmail = recipients.join(',');
+    final subject = Uri.encodeComponent('CyberSentinel Alert');
+    final body = Uri.encodeComponent(_messageController.text.trim() + '\n\nSent from CyberSentinel');
+    final mailto = 'mailto:$toEmail?subject=$subject&body=$body';
+
+    final launched = await launchUrlString(mailto);
+    if (!launched) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open email client')));
+    }
   }
 
   @override
@@ -123,18 +163,34 @@ class _TwilioPanelState extends State<TwilioPanel> {
             ),
           ),
           const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _sendSms,
-              icon: const Icon(Icons.send, size: 16),
-              label: const Text('Send SMS'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.accentBlue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _isSending ? null : _sendSms,
+                  icon: const Icon(Icons.send, size: 16),
+                  label: const Text('Send SMS'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _sendEmail,
+                  icon: const Icon(Icons.email, size: 16),
+                  label: Text('Email (${AppConfig.instance.groupEmails.isEmpty ? 1 : AppConfig.instance.groupEmails.length})'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           const Text(

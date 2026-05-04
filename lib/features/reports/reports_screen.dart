@@ -13,47 +13,93 @@ class ReportsScreen extends StatelessWidget {
       ('SMS Activity Report', 'Generated Today', 'CSV'),
     ];
 
+    final teamSnapshot = [
+      ('Tadiwa Sharara', 'Project Planning'),
+      ('Bunu Anesu', 'Backend Development'),
+      ('Madamu Creig', 'Network Monitoring'),
+      ('Davison Karamenti', 'Machine Learning'),
+      ('Dzimbanhete Bhunu', 'Threat Detection'),
+      ('Lestiwege Mufutumari', 'Frontend Development'),
+      ('Tinashe Matyamaenza', 'Testing'),
+      ('Agatha Katiyo', 'Documentation'),
+    ];
+
     return _FeatureShell(
       title: 'Reports',
       subtitle: 'Exportable security summaries and audit data',
-      child: ListView.builder(
-        itemCount: reports.length,
-        itemBuilder: (context, index) {
-          final report = reports[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
+      child: ListView(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppTheme.secondaryBlack,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: const Color(0xFF2A3050)),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.description_outlined, color: AppTheme.accentBlue),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(report.$1, style: const TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 4),
-                      Text(report.$2, style: const TextStyle(color: AppTheme.textGrey, fontSize: 12)),
-                    ],
-                  ),
+                const Text(
+                  'PROJECT CONTRIBUTORS',
+                  style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.bold, letterSpacing: 1.0),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentBlue.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(report.$3, style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                const Text(
+                  'The current team structure that supports the CyberSentinel build and delivery.',
+                  style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: teamSnapshot
+                      .map(
+                        (member) => Chip(
+                          label: Text('${member.$1} • ${member.$2}'),
+                        ),
+                      )
+                      .toList(),
                 ),
               ],
             ),
-          );
-        },
+          ),
+          ...reports.map((report) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.secondaryBlack,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF2A3050)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.description_outlined, color: AppTheme.accentBlue),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(report.$1, style: const TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 4),
+                        Text(report.$2, style: const TextStyle(color: AppTheme.textGrey, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentBlue.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(report.$3, style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

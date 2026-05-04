@@ -5,6 +5,9 @@ import 'widgets/attack_map.dart';
 import 'widgets/system_stats.dart';
 import 'widgets/defensive_terminal.dart';
 import 'widgets/twilio_panel.dart';
+import 'widgets/incidents_overview.dart';
+import 'widgets/top_attack_types.dart';
+import 'widgets/voice_assistant_card.dart';
 import '../../core/theme.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -35,177 +38,229 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(color: AppTheme.textGrey),
               ),
               const SizedBox(height: 16),
-              // Top Stats Row
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWide = constraints.maxWidth > 900;
-                  return isWide
-                      ? const Row(
-                          children: [
-                            StatCard(
-                              title: 'TOTAL THREATS',
-                              value: '87',
-                              color: AppTheme.dangerRed,
-                              trend: '↑ 23%',
-                            ),
-                            SizedBox(width: 12),
-                            StatCard(
-                              title: 'HIGH RISK ALERTS',
-                              value: '23',
-                              color: AppTheme.warningOrange,
-                              trend: '↑ 35%',
-                            ),
-                            SizedBox(width: 12),
-                            StatCard(
-                              title: 'INCIDENTS',
-                              value: '16',
-                              color: AppTheme.accentBlue,
-                              trend: '',
-                            ),
-                            SizedBox(width: 12),
-                            StatCard(
-                              title: 'RESOLVED',
-                              value: '54',
-                              color: AppTheme.successGreen,
-                              trend: '↑ 12%',
-                            ),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            Row(children: const [Expanded(child: StatCard(title: 'TOTAL THREATS', value: '87', color: AppTheme.dangerRed, trend: '↑ 23%')), SizedBox(width: 12), Expanded(child: StatCard(title: 'HIGH RISK ALERTS', value: '23', color: AppTheme.warningOrange, trend: '↑ 35%'))]),
-                            const SizedBox(height: 12),
-                            Row(children: const [Expanded(child: StatCard(title: 'INCIDENTS', value: '16', color: AppTheme.accentBlue, trend: '')), SizedBox(width: 12), Expanded(child: StatCard(title: 'RESOLVED', value: '54', color: AppTheme.successGreen, trend: '↑ 12%'))]),
-                          ],
-                        );
-                },
-              ),
+              _buildTopStats(),
               const SizedBox(height: 20),
-
-              // Main Content Area
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWide = constraints.maxWidth > 1000;
-                  final mainContent = [
-                    Expanded(
-                      child: SizedBox(
-                        height: 460,
-                        child: Card(
-                          color: AppTheme.secondaryBlack,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Color(0xFF2A3050), width: 1),
-                          ),
-                          child: const ThreatTable(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12, height: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 460,
-                        child: Card(
-                          color: AppTheme.secondaryBlack,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Color(0xFF2A3050), width: 1),
-                          ),
-                          child: const AttackMap(),
-                        ),
-                      ),
-                    ),
-                  ];
-
-                  return isWide
-                      ? SizedBox(height: 460, child: Row(children: mainContent))
-                      : Column(
-                          children: [
-                            SizedBox(
-                              height: 420,
-                              child: Card(
-                                color: AppTheme.secondaryBlack,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: const BorderSide(color: Color(0xFF2A3050), width: 1),
-                                ),
-                                child: const ThreatTable(),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 420,
-                              child: Card(
-                                color: AppTheme.secondaryBlack,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: const BorderSide(color: Color(0xFF2A3050), width: 1),
-                                ),
-                                child: const AttackMap(),
-                              ),
-                            ),
-                          ],
-                        );
-                },
-              ),
+              _buildThreatAndMap(),
               const SizedBox(height: 20),
-
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWide = constraints.maxWidth > 900;
-                  if (isWide) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Expanded(
-                          child: Card(
-                            color: AppTheme.secondaryBlack,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                              side: BorderSide(color: Color(0xFF2A3050), width: 1),
-                            ),
-                            child: SystemStats(),
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: SizedBox(height: 360, child: DefensiveTerminal()),
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: SizedBox(height: 360, child: TwilioPanel()),
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Column(
-                    children: const [
-                      Card(
-                        color: AppTheme.secondaryBlack,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          side: BorderSide(color: Color(0xFF2A3050), width: 1),
-                        ),
-                        child: SystemStats(),
-                      ),
-                      SizedBox(height: 12),
-                      SizedBox(height: 360, child: DefensiveTerminal()),
-                      SizedBox(height: 12),
-                      SizedBox(height: 420, child: TwilioPanel()),
-                    ],
-                  );
-                },
-              ),
+              _buildAnalytics(),
+              const SizedBox(height: 20),
+              _buildTools(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTopStats() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 1100;
+
+        if (isWide) {
+          return const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(width: 220, child: StatCard(title: 'TOTAL THREATS', value: '87', color: AppTheme.dangerRed, trend: '↑ 23%')),
+              SizedBox(width: 12),
+              SizedBox(width: 220, child: StatCard(title: 'HIGH RISK ALERTS', value: '23', color: AppTheme.warningOrange, trend: '↑ 35%')),
+              SizedBox(width: 12),
+              SizedBox(width: 220, child: StatCard(title: 'INCIDENTS', value: '16', color: AppTheme.accentBlue, trend: '')),
+              SizedBox(width: 12),
+              SizedBox(width: 220, child: StatCard(title: 'RESOLVED', value: '54', color: AppTheme.successGreen, trend: '↑ 12%')),
+              SizedBox(width: 12),
+              SizedBox(width: 220, child: StatCard(title: 'USERS ONLINE', value: '5', color: Color(0xFF9B59FF), trend: 'Active')),
+            ],
+          );
+        }
+
+        return const Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: StatCard(title: 'TOTAL THREATS', value: '87', color: AppTheme.dangerRed, trend: '↑ 23%')),
+                SizedBox(width: 12),
+                Expanded(child: StatCard(title: 'HIGH RISK ALERTS', value: '23', color: AppTheme.warningOrange, trend: '↑ 35%')),
+              ],
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: StatCard(title: 'INCIDENTS', value: '16', color: AppTheme.accentBlue, trend: '')),
+                SizedBox(width: 12),
+                Expanded(child: StatCard(title: 'RESOLVED', value: '54', color: AppTheme.successGreen, trend: '↑ 12%')),
+              ],
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: StatCard(title: 'USERS ONLINE', value: '5', color: Color(0xFF9B59FF), trend: 'Active')),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildThreatAndMap() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 1000;
+
+        if (isWide) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Expanded(
+                child: SizedBox(
+                  height: 460,
+                  child: Card(
+                    color: AppTheme.secondaryBlack,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      side: BorderSide(color: Color(0xFF2A3050), width: 1),
+                    ),
+                    child: ThreatTable(),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 460,
+                  child: Card(
+                    color: AppTheme.secondaryBlack,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      side: BorderSide(color: Color(0xFF2A3050), width: 1),
+                    ),
+                    child: AttackMap(),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return const Column(
+          children: [
+            SizedBox(
+              height: 420,
+              child: Card(
+                color: AppTheme.secondaryBlack,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  side: BorderSide(color: Color(0xFF2A3050), width: 1),
+                ),
+                child: ThreatTable(),
+              ),
+            ),
+            SizedBox(height: 12),
+            SizedBox(
+              height: 420,
+              child: Card(
+                color: AppTheme.secondaryBlack,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  side: BorderSide(color: Color(0xFF2A3050), width: 1),
+                ),
+                child: AttackMap(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildAnalytics() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 1100;
+
+        if (isWide) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Expanded(child: SizedBox(height: 260, child: IncidentsOverview())),
+              SizedBox(width: 12),
+              Expanded(child: SizedBox(height: 260, child: TopAttackTypes())),
+              SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 260,
+                  child: Card(
+                    color: AppTheme.secondaryBlack,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      side: BorderSide(color: Color(0xFF2A3050), width: 1),
+                    ),
+                    child: SystemStats(),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return const Column(
+          children: [
+            SizedBox(height: 240, child: IncidentsOverview()),
+            SizedBox(height: 12),
+            SizedBox(height: 260, child: TopAttackTypes()),
+            SizedBox(height: 12),
+            SizedBox(
+              height: 260,
+              child: Card(
+                color: AppTheme.secondaryBlack,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  side: BorderSide(color: Color(0xFF2A3050), width: 1),
+                ),
+                child: SystemStats(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTools() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 1100;
+
+        if (isWide) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Expanded(child: SizedBox(height: 260, child: VoiceAssistantCard())),
+              SizedBox(width: 12),
+              Expanded(child: SizedBox(height: 360, child: DefensiveTerminal())),
+              SizedBox(width: 12),
+              Expanded(child: SizedBox(height: 360, child: TwilioPanel())),
+            ],
+          );
+        }
+
+        return const Column(
+          children: [
+            SizedBox(height: 260, child: VoiceAssistantCard()),
+            SizedBox(height: 12),
+            SizedBox(height: 360, child: DefensiveTerminal()),
+            SizedBox(height: 12),
+            SizedBox(height: 420, child: TwilioPanel()),
+          ],
+        );
+      },
     );
   }
 }
