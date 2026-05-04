@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+
+import 'app_storage.dart';
 
 class AppConfig extends ChangeNotifier {
   AppConfig._internal();
@@ -10,11 +14,34 @@ class AppConfig extends ChangeNotifier {
   String twilioFromNumber = '';
   final List<String> groupEmails = [];
 
+  Future<void> load() async {
+    final state = await AppStorage.readState();
+    twilioAccountSid = state['twilioAccountSid'] as String? ?? '';
+    twilioAuthToken = state['twilioAuthToken'] as String? ?? '';
+    twilioFromNumber = state['twilioFromNumber'] as String? ?? '';
+
+    groupEmails
+      ..clear()
+      ..addAll(((state['groupEmails'] as List?) ?? const []).whereType<String>().map((email) => email.trim().toLowerCase()));
+
+    notifyListeners();
+  }
+
+  Future<void> _persist() async {
+    final state = await AppStorage.readState();
+    state['twilioAccountSid'] = twilioAccountSid;
+    state['twilioAuthToken'] = twilioAuthToken;
+    state['twilioFromNumber'] = twilioFromNumber;
+    state['groupEmails'] = groupEmails;
+    await AppStorage.writeState(state);
+  }
+
   void updateTwilio({required String accountSid, required String authToken, required String from}) {
     twilioAccountSid = accountSid;
     twilioAuthToken = authToken;
     twilioFromNumber = from;
     notifyListeners();
+    unawaited(_persist());
   }
 
   void addGroupEmail(String email) {
@@ -24,10 +51,12 @@ class AppConfig extends ChangeNotifier {
     }
     groupEmails.add(normalized);
     notifyListeners();
+    unawaited(_persist());
   }
 
   void removeGroupEmail(String email) {
-    groupEmails.remove(email.toLowerCase());
+    groupEmails.remove(email.trim().toLowerCase());
     notifyListeners();
+    unawaited(_persist());
   }
 }

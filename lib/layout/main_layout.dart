@@ -11,6 +11,7 @@ import '../features/voice/voice_assistant_screen.dart';
 import '../features/incidents/incidents_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../services/access_control.dart';
 import '../services/app_state.dart';
 
 class MainLayout extends StatefulWidget {
@@ -63,19 +64,22 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppTheme.primaryBlack,
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xFF2A3050),
-            width: 1,
+    return AnimatedBuilder(
+      animation: Listenable.merge([AppState.instance, AccessControl.instance]),
+      builder: (context, _) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: const BoxDecoration(
+            color: AppTheme.primaryBlack,
+            border: Border(
+              bottom: BorderSide(
+                color: Color(0xFF2A3050),
+                width: 1,
+              ),
+            ),
           ),
-        ),
-      ),
-      child: Row(
-        children: [
+          child: Row(
+            children: [
           Row(
             children: [
               Container(
@@ -213,18 +217,20 @@ class _MainLayoutState extends State<MainLayout> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Admin', style: TextStyle(color: AppTheme.textWhite, fontSize: 12, fontWeight: FontWeight.w600)),
-                    Text('ADMIN', style: TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
+                    const Text('Admin', style: TextStyle(color: AppTheme.textWhite, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(AccessControl.instance.activeRole.toUpperCase(), style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
                   ],
                 ),
               ],
             ),
           ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 

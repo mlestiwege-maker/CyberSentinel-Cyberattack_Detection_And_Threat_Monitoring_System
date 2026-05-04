@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'core/theme.dart';
 import 'layout/main_layout.dart';
+import 'services/access_control.dart';
+import 'services/app_config.dart';
 import 'services/app_state.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Future.wait([
+    AppState.instance.load(),
+    AppConfig.instance.load(),
+    AccessControl.instance.load(),
+  ]);
   runApp(const MyApp());
 }
 
