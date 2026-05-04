@@ -21,71 +21,77 @@ class TopAttackTypes extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFF2A3050)),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'TOP ATTACK TYPES',
-              style: TextStyle(
-                color: AppTheme.textWhite,
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
+      child: LimitedBox(
+        maxHeight: 400,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'TOP ATTACK TYPES',
+                style: TextStyle(
+                  color: AppTheme.textWhite,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            ...items.map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.$1,
-                            style: const TextStyle(
-                              color: AppTheme.textGrey,
-                              fontSize: 12,
+              const SizedBox(height: 8),
+              ...items.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.$1,
+                              style: const TextStyle(
+                                color: AppTheme.textGrey,
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                        Text(
-                          '${item.$2}',
-                          style: const TextStyle(
-                            color: AppTheme.textWhite,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(width: 4),
+                          Text(
+                            '${item.$2}',
+                            style: const TextStyle(
+                              color: AppTheme.textWhite,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '(${(item.$3 * 100).round()}%)',
-                          style: TextStyle(
-                            color: item.$4,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(width: 4),
+                          Text(
+                            '(${(item.$3 * 100).round()}%)',
+                            style: TextStyle(
+                              color: item.$4,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
-                      child: LinearProgressIndicator(
-                        minHeight: 6,
-                        value: item.$3,
-                        backgroundColor: const Color(0xFF2A3050),
-                        valueColor: AlwaysStoppedAnimation<Color>(item.$4),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(99),
+                        child: LinearProgressIndicator(
+                          minHeight: 6,
+                          value: item.$3,
+                          backgroundColor: const Color(0xFF2A3050),
+                          valueColor: AlwaysStoppedAnimation<Color>(item.$4),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );
