@@ -1,0 +1,4 @@
+build/
+.dart_tool/
+linux/flutter/generated_*
+windows/flutter/generated_*

@@ -2,12 +2,28 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../core/constants.dart';
 import '../models/alert_model.dart';
+import 'app_config.dart';
 
 class ApiService {
+  static Map<String, String> _headers({bool jsonBody = false}) {
+    final headers = <String, String>{};
+    if (jsonBody) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    final token = AppConfig.instance.backendAuthToken.trim();
+    if (token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+
+    return headers;
+  }
+
   static Future<List<Alert>> fetchAlerts() async {
     try {
       final response = await http.get(
         Uri.parse(AppConstants.alertsEndpoint),
+        headers: _headers(),
       ).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
@@ -31,6 +47,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(AppConstants.threatsEndpoint),
+        headers: _headers(),
       ).timeout(
         const Duration(seconds: 10),
       );
@@ -49,6 +66,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(AppConstants.incidentsEndpoint),
+        headers: _headers(),
       ).timeout(
         const Duration(seconds: 10),
       );
@@ -67,6 +85,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(AppConstants.dashboardSummaryEndpoint),
+        headers: _headers(),
       ).timeout(
         const Duration(seconds: 10),
       );
@@ -85,7 +104,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse(AppConstants.twilioSendEndpoint),
-        headers: {'Content-Type': 'application/json'},
+        headers: _headers(jsonBody: true),
         body: jsonEncode({'to': to, 'body': body}),
       ).timeout(
         const Duration(seconds: 10),
@@ -105,7 +124,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse(AppConstants.voiceCommandEndpoint),
-        headers: {'Content-Type': 'application/json'},
+        headers: _headers(jsonBody: true),
         body: jsonEncode({'command': command}),
       ).timeout(
         const Duration(seconds: 10),
@@ -125,6 +144,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(AppConstants.teamMembersEndpoint),
+        headers: _headers(),
       ).timeout(
         const Duration(seconds: 10),
       );
@@ -143,6 +163,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse(AppConstants.reportsEndpoint),
+        headers: _headers(),
       ).timeout(
         const Duration(seconds: 10),
       );

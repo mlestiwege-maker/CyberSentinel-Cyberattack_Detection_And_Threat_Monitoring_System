@@ -9,7 +9,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: AppState.instance,
+      animation: Listenable.merge([AppState.instance, AppConfig.instance]),
       builder: (context, _) => _FeatureShell(
         title: 'Settings',
         subtitle: 'Application preferences and security options',
@@ -28,6 +28,7 @@ class SettingsScreen extends StatelessWidget {
               onChanged: AppState.instance.setNotificationsEnabled,
             ),
             const _InfoTile(title: 'API Endpoint', subtitle: 'http://127.0.0.1:8000'),
+            const BackendAuthSettings(),
             const TwilioSettings(),
             const GroupEmailSettings(),
             _SettingTile(
@@ -38,6 +39,82 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class BackendAuthSettings extends StatefulWidget {
+  const BackendAuthSettings({super.key});
+
+  @override
+  State<BackendAuthSettings> createState() => _BackendAuthSettingsState();
+}
+
+class _BackendAuthSettingsState extends State<BackendAuthSettings> {
+  final _tokenController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tokenController.text = AppConfig.instance.backendAuthToken;
+  }
+
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    AppConfig.instance.updateBackendAuthToken(_tokenController.text);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Backend auth token saved')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryBlack,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF2A3050)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Backend Authentication', style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          const Text(
+            'Paste a JWT from the backend login endpoint so protected APIs can be called.',
+            style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _tokenController,
+            style: const TextStyle(color: AppTheme.textWhite),
+            decoration: const InputDecoration(
+              labelText: 'Bearer token',
+              labelStyle: TextStyle(color: AppTheme.textGrey),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              ElevatedButton(onPressed: _save, child: const Text('Save')),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  _tokenController.clear();
+                  AppConfig.instance.updateBackendAuthToken('');
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                child: const Text('Clear'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

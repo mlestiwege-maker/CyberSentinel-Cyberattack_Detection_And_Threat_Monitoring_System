@@ -75,43 +75,45 @@ class _DefensiveTerminalState extends State<DefensiveTerminal> {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFF2A3050)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'DEFENSIVE TERMINAL',
-            style: TextStyle(
-              color: AppTheme.textWhite,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'DEFENSIVE TERMINAL',
+              style: TextStyle(
+                color: AppTheme.textWhite,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(4),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentBlue.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('TERMINAL', style: TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
                 ),
-                child: const Text('TERMINAL', style: TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.successGreen.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(4),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successGreen.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('LIVE', style: TextStyle(color: AppTheme.successGreen, fontSize: 10)),
                 ),
-                child: const Text('LIVE', style: TextStyle(color: AppTheme.successGreen, fontSize: 10)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: Container(
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
               width: double.infinity,
+              height: 120,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFF08111F),
@@ -136,44 +138,44 @@ class _DefensiveTerminalState extends State<DefensiveTerminal> {
                 },
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _controller,
-            style: const TextStyle(color: AppTheme.textWhite, fontFamily: 'monospace'),
-            decoration: InputDecoration(
-              hintText: 'Type a command...',
-              hintStyle: const TextStyle(color: AppTheme.textGrey),
-              filled: true,
-              fillColor: const Color(0xFF08111F),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: const BorderSide(color: Color(0xFF1E2A44)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: const BorderSide(color: AppTheme.accentBlue),
-              ),
-            ),
-            onSubmitted: (_) => _runCommand(_controller.text),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _commands.map((item) {
-              return OutlinedButton(
-                onPressed: () => _runCommand(item['command']!),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppTheme.accentBlue.withOpacity(0.4)),
-                  foregroundColor: AppTheme.accentBlue,
+            const SizedBox(height: 12),
+            TextField(
+              controller: _controller,
+              style: const TextStyle(color: AppTheme.textWhite, fontFamily: 'monospace'),
+              decoration: InputDecoration(
+                hintText: 'Type a command...',
+                hintStyle: const TextStyle(color: AppTheme.textGrey),
+                filled: true,
+                fillColor: const Color(0xFF08111F),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                  borderSide: const BorderSide(color: Color(0xFF1E2A44)),
                 ),
-                child: Text(item['label']!, style: const TextStyle(fontSize: 11)),
-              );
-            }).toList(),
-          ),
-        ],
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                  borderSide: const BorderSide(color: AppTheme.accentBlue),
+                ),
+              ),
+              onSubmitted: (_) => _runCommand(_controller.text),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _commands.map((item) {
+                return OutlinedButton(
+                  onPressed: () => _runCommand(item['command']!),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AppTheme.accentBlue.withOpacity(0.4)),
+                    foregroundColor: AppTheme.accentBlue,
+                  ),
+                  child: Text(item['label']!, style: const TextStyle(fontSize: 11)),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
       ),
     );
   }
