@@ -77,7 +77,7 @@ class _TwilioPanelState extends State<TwilioPanel> {
         : AppConfig.instance.groupEmails;
     final toEmail = recipients.join(',');
     final subject = Uri.encodeComponent('CyberSentinel Alert');
-    final body = Uri.encodeComponent(_messageController.text.trim() + '\n\nSent from CyberSentinel');
+    final body = Uri.encodeComponent('${_messageController.text.trim()}\n\nSent from CyberSentinel');
     final mailto = 'mailto:$toEmail?subject=$subject&body=$body';
 
     final launched = await launchUrlString(mailto);

@@ -119,7 +119,7 @@ class _ThreatTableState extends State<ThreatTable> {
       fontWeight: FontWeight.bold,
     );
 
-    return Row(
+    return const Row(
       children: [
         SizedBox(width: 60, child: Text('TIME', style: headerStyle)),
         SizedBox(width: 100, child: Text('TYPE', style: headerStyle)),

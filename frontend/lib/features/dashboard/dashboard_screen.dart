@@ -9,7 +9,6 @@ import 'widgets/incidents_overview.dart';
 import 'widgets/top_attack_types.dart';
 import 'widgets/voice_assistant_card.dart';
 import '../../core/theme.dart';
-import '../../services/api_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,27 +18,6 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  Map<String, dynamic>? _summary;
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSummary();
-  }
-
-  Future<void> _loadSummary() async {
-    try {
-      final data = await ApiService.fetchDashboardSummary();
-      setState(() {
-        _summary = data;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() => _loading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -80,10 +58,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTopStats() {
-    final totalThreats = _summary?['total_threats']?.toString() ?? '87';
-    final highRisk = _summary?['high']?.toString() ?? '23';
-    final unreadAlerts = _summary?['unread_alerts']?.toString() ?? '12';
-    
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth > 1100;
@@ -140,9 +114,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final isWide = constraints.maxWidth > 1000;
 
         if (isWide) {
-          return Row(
+          return const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(
                 child: SizedBox(
                   height: 460,
@@ -215,9 +189,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final isWide = constraints.maxWidth > 1100;
 
         if (isWide) {
-          return Row(
+          return const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(child: SizedBox(height: 260, child: IncidentsOverview())),
               SizedBox(width: 12),
               Expanded(child: SizedBox(height: 260, child: TopAttackTypes())),
@@ -270,9 +244,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final isWide = constraints.maxWidth > 1100;
 
         if (isWide) {
-          return Row(
+          return const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(child: SizedBox(height: 260, child: VoiceAssistantCard())),
               SizedBox(width: 12),
               Expanded(child: SizedBox(height: 360, child: DefensiveTerminal())),

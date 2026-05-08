@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cybersentinel_frontend/main.dart';
 
 void main() {
-  testWidgets('CyberSentinel shell renders', (WidgetTester tester) async {
+  testWidgets('CyberSentinel shows the auth gate by default', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1600, 1000);
     tester.view.devicePixelRatio = 1.0;
 
@@ -25,7 +25,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('CyberSentinel'), findsWidgets);
-    expect(find.text('ADMINISTRATOR CONSOLE'), findsOneWidget);
-    expect(find.text('Dashboard'), findsWidgets);
+    expect(find.text('Team Login'), findsOneWidget);
+    expect(find.text('Need an account? Register here'), findsOneWidget);
   });
 }

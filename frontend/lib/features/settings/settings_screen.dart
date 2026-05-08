@@ -87,7 +87,7 @@ class _BackendAuthSettingsState extends State<BackendAuthSettings> {
           const Text('Backend Authentication', style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           const Text(
-            'Paste a JWT from the backend login endpoint so protected APIs can be called.',
+            'Paste a JWT from the backend login endpoint so protected APIs can be called. Saved tokens are verified on launch.',
             style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
           ),
           const SizedBox(height: 10),
@@ -294,8 +294,8 @@ class _TwilioSettingsState extends State<TwilioSettings> {
                   _fromController.clear();
                   AppConfig.instance.updateTwilio(accountSid: '', authToken: '', from: '');
                 },
-                child: const Text('Clear'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                child: const Text('Clear'),
               ),
             ],
           ),

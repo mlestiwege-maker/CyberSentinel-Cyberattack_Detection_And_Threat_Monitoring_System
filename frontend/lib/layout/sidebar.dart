@@ -67,8 +67,8 @@ class Sidebar extends StatelessWidget {
               ],
             ),
           ),
-          Divider(
-            color: const Color(0xFF2A3050),
+          const Divider(
+            color: Color(0xFF2A3050),
             height: 1,
           ),
           Expanded(
@@ -139,8 +139,8 @@ class Sidebar extends StatelessWidget {
               },
             ),
           ),
-          Divider(
-            color: const Color(0xFF2A3050),
+          const Divider(
+            color: Color(0xFF2A3050),
             height: 1,
           ),
           Padding(

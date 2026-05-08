@@ -12,8 +12,6 @@ class UsersRolesScreen extends StatefulWidget {
 
 class _UsersRolesScreenState extends State<UsersRolesScreen> {
   List<dynamic> _teamMembers = [];
-  List<dynamic> _workstreams = [];
-  bool _loading = true;
 
   @override
   void initState() {
@@ -26,7 +24,6 @@ class _UsersRolesScreenState extends State<UsersRolesScreen> {
       final data = await ApiService.getTeamMembers();
       setState(() {
         _teamMembers = data;
-        _loading = false;
       });
     } catch (e) {
       setState(() {
@@ -41,7 +38,6 @@ class _UsersRolesScreenState extends State<UsersRolesScreen> {
           {'name': 'Tinashe Matyamaenza', 'role': 'Testing', 'status': 'Online', 'color': 'success', 'assignment': 'Unit, integration, and system testing', 'assignedRole': 'testing'},
           {'name': 'Agatha Katiyo', 'role': 'Documentation', 'status': 'Offline', 'color': 'grey', 'assignment': 'Reports and presentation preparation', 'assignedRole': 'documentation'},
         ];
-        _loading = false;
       });
     }
   }
@@ -76,7 +72,7 @@ class _UsersRolesScreenState extends State<UsersRolesScreen> {
           _Workstream('Machine Learning', 'Davison Karamenti', 'Train and integrate anomaly detection model', AppTheme.accentBlue, 'testing'),
           _Workstream('Threat Detection', 'Dzimbanhete Bhunu', 'Implement port scan & brute force detection', AppTheme.warningOrange, 'incident_responder'),
           _Workstream('Frontend Development', 'Mufutumari Lestiwege', 'Build Flutter UI and integrate APIs', AppTheme.successGreen, 'admin'),
-          _Workstream('Admin Features', 'Shared Team', 'Incident response and role management', Color(0xFF9B59FF), 'admin'),
+          _Workstream('Admin Features', 'Shared Team', 'Incident response and role management', const Color(0xFF9B59FF), 'admin'),
           _Workstream('Notifications', 'Shared Team', 'Email and SMS alerts integration', AppTheme.dangerRed, 'admin'),
           _Workstream('Testing', 'Tinashe Matyamaenza', 'Unit, integration and system testing', AppTheme.successGreen, 'testing'),
           _Workstream('Documentation', 'Agatha Katiyo', 'Prepare reports and presentation', AppTheme.textGrey, 'documentation'),

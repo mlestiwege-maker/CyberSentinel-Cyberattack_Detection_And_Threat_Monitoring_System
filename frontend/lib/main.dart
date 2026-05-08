@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'core/theme.dart';
+import 'features/auth/auth_screen.dart';
 import 'layout/main_layout.dart';
 import 'services/access_control.dart';
 import 'services/app_config.dart';
@@ -25,14 +26,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: AppState.instance,
+      animation: Listenable.merge([AppState.instance, AppConfig.instance]),
       builder: (context, _) => MaterialApp(
         title: 'CyberSentinel',
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: AppState.instance.isDarkMode ? ThemeMode.dark : ThemeMode.light,
         debugShowCheckedModeBanner: false,
-        home: const MainLayout(),
+        home: AppConfig.instance.isAuthenticated ? const MainLayout() : const AuthScreen(),
       ),
     );
   }

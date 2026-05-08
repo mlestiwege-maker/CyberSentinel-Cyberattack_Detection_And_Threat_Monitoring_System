@@ -18,8 +18,8 @@ class AlertsScreen extends StatelessWidget {
       subtitle: 'Active alert feed and risk overview',
       child: Column(
         children: [
-          Row(
-            children: const [
+          const Row(
+            children: [
               _MiniStat(label: 'Open', value: '8', color: AppTheme.dangerRed),
               SizedBox(width: 12),
               _MiniStat(label: 'In Progress', value: '5', color: AppTheme.warningOrange),
@@ -81,7 +81,7 @@ class _AlertCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: severityColor.withOpacity(0.12),
+              color: severityColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(alert.severity, style: TextStyle(color: severityColor, fontSize: 11, fontWeight: FontWeight.bold)),

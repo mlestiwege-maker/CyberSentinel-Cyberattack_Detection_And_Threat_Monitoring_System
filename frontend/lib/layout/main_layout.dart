@@ -12,6 +12,7 @@ import '../features/incidents/incidents_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../services/access_control.dart';
+import '../services/app_config.dart';
 import '../services/app_state.dart';
 
 class MainLayout extends StatefulWidget {
@@ -65,7 +66,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   Widget _buildTopBar() {
     return AnimatedBuilder(
-      animation: Listenable.merge([AppState.instance, AccessControl.instance]),
+      animation: Listenable.merge([AppState.instance, AccessControl.instance, AppConfig.instance]),
       builder: (context, _) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -93,9 +94,9 @@ class _MainLayoutState extends State<MainLayout> {
                 child: const Icon(Icons.security, color: AppTheme.accentBlue, size: 18),
               ),
               const SizedBox(width: 10),
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'CyberSentinel',
                     style: TextStyle(
@@ -220,12 +221,26 @@ class _MainLayoutState extends State<MainLayout> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Admin', style: TextStyle(color: AppTheme.textWhite, fontSize: 12, fontWeight: FontWeight.w600)),
-                    Text(AccessControl.instance.activeRole.toUpperCase(), style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
+                    Text(
+                      AppConfig.instance.backendUserName.isEmpty ? 'Team Member' : AppConfig.instance.backendUserName,
+                      style: const TextStyle(color: AppTheme.textWhite, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      (AppConfig.instance.backendUserRole.isEmpty ? AccessControl.instance.activeRole : AppConfig.instance.backendUserRole).toUpperCase(),
+                      style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10),
+                    ),
                   ],
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: 10),
+          TextButton(
+            onPressed: () {
+              AppConfig.instance.clearBackendSession();
+              AccessControl.instance.setRole('Admin');
+            },
+            child: const Text('Logout'),
           ),
             ],
           ),

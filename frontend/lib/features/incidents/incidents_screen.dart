@@ -14,7 +14,6 @@ class IncidentsScreen extends StatefulWidget {
 class _IncidentsScreenState extends State<IncidentsScreen> {
   late List<_IncidentItem> _incidents;
   final List<_IncidentEvent> _timeline = [];
-  bool _loading = true;
 
   @override
   void initState() {
@@ -33,7 +32,6 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
           _getStatusColor(json['status'] ?? 'Open'),
           DateTime.now(),
         )).toList();
-        _loading = false;
         for (final incident in _incidents) {
           _timeline.add(_IncidentEvent(incident.id, 'Loaded with status ${incident.status}', incident.status, incident.lastUpdated));
         }
@@ -46,7 +44,6 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
           _IncidentItem('INC-2024-003', 'Resolved', 'Phishing email reported', AppTheme.successGreen, DateTime.now()),
           _IncidentItem('INC-2024-004', 'Open', 'Suspicious outbound traffic', AppTheme.dangerRed, DateTime.now()),
         ];
-        _loading = false;
         for (final incident in _incidents) {
           _timeline.add(_IncidentEvent(incident.id, 'Loaded with status ${incident.status}', incident.status, incident.lastUpdated));
         }

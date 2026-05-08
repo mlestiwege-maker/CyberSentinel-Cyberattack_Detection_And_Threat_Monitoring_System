@@ -35,7 +35,7 @@ class IncidentsOverview extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Center(
+              const Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -45,13 +45,13 @@ class IncidentsOverview extends StatelessWidget {
                       child: CircularProgressIndicator(
                         value: 0.5,
                         strokeWidth: 10,
-                        backgroundColor: const Color(0xFF2A3050),
+                        backgroundColor: Color(0xFF2A3050),
                         valueColor: AlwaysStoppedAnimation<Color>(AppTheme.dangerRed),
                       ),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Text(
                           '16',
                           style: TextStyle(
