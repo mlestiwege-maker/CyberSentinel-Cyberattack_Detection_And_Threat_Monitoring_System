@@ -3,9 +3,38 @@ import '../dashboard/widgets/twilio_panel.dart';
 import '../../core/theme.dart';
 import '../../services/access_control.dart';
 import '../../services/app_config.dart';
+import '../../services/api_service.dart';
 
-class TwilioScreen extends StatelessWidget {
+class TwilioScreen extends StatefulWidget {
   const TwilioScreen({super.key});
+
+  @override
+  State<TwilioScreen> createState() => _TwilioScreenState();
+}
+
+class _TwilioScreenState extends State<TwilioScreen> {
+  bool _loading = false;
+
+  Future<void> _sendSms(String to, String body) async {
+    if (!AccessControl.instance.canPerform('twilio.send')) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Current role cannot send SMS')));
+      return;
+    }
+    
+    setState(() => _loading = true);
+    try {
+      final result = await ApiService.sendSms(to: to, body: body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('SMS sent successfully. Message SID: ${result['message_sid']}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send SMS: $e')),
+      );
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +110,12 @@ class TwilioScreen extends StatelessWidget {
                   ),
                 ),
               if (!AccessControl.instance.canPerform('twilio.send')) const SizedBox(height: 12),
-              const Expanded(child: TwilioPanel()),
+              Expanded(
+                child: TwilioPanel(
+                  onSendSms: _sendSms,
+                  loading: _loading,
+                ),
+              ),
             ],
           ),
         );

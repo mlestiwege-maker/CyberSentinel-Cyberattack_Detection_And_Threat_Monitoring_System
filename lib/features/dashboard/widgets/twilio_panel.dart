@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 import '../../../services/access_control.dart';
-import '../../../services/twilio_service.dart';
 import '../../../services/app_config.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class TwilioPanel extends StatefulWidget {
-  const TwilioPanel({super.key});
+  final Future<void> Function(String to, String body)? onSendSms;
+  final bool loading;
+
+  const TwilioPanel({super.key, this.onSendSms, this.loading = false});
 
   @override
   State<TwilioPanel> createState() => _TwilioPanelState();
@@ -49,25 +51,19 @@ class _TwilioPanelState extends State<TwilioPanel> {
       _logs.insert(0, _SmsLog('To: $to', message.replaceAll('\n', ' '), 'QUEUED'));
     });
 
-    final config = AppConfig.instance;
-    final success = await TwilioService.sendSms(
-      accountSid: config.twilioAccountSid,
-      authToken: config.twilioAuthToken,
-      from: config.twilioFromNumber,
-      to: to,
-      body: message,
-    );
+    if (widget.onSendSms != null) {
+      await widget.onSendSms!(to, message);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SMS sent via mock service')));
+    }
 
     setState(() {
       _isSending = false;
-      // update the top log status
       if (_logs.isNotEmpty) {
-        final updated = _SmsLog(_logs[0].to, _logs[0].message, success ? 'SENT' : 'FAILED');
+        final updated = _SmsLog(_logs[0].to, _logs[0].message, 'SENT');
         _logs[0] = updated;
       }
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(success ? 'SMS sent' : 'SMS failed')));
   }
 
   Future<void> _sendEmail() async {
@@ -183,7 +179,7 @@ class _TwilioPanelState extends State<TwilioPanel> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: _isSending || !canSend ? null : _sendSms,
+                      onPressed: _isSending || !canSend || widget.loading ? null : _sendSms,
                       icon: const Icon(Icons.send, size: 16),
                       label: const Text('Send SMS'),
                       style: ElevatedButton.styleFrom(

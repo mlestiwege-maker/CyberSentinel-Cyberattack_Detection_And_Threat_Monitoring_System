@@ -1,39 +1,85 @@
 import 'package:flutter/material.dart';
-
 import '../../core/theme.dart';
 import '../../services/access_control.dart';
+import '../../services/api_service.dart';
 
-class UsersRolesScreen extends StatelessWidget {
+class UsersRolesScreen extends StatefulWidget {
   const UsersRolesScreen({super.key});
+
+  @override
+  State<UsersRolesScreen> createState() => _UsersRolesScreenState();
+}
+
+class _UsersRolesScreenState extends State<UsersRolesScreen> {
+  List<dynamic> _teamMembers = [];
+  List<dynamic> _workstreams = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTeam();
+  }
+
+  Future<void> _loadTeam() async {
+    try {
+      final data = await ApiService.getTeamMembers();
+      setState(() {
+        _teamMembers = data;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _teamMembers = [
+          {'name': 'Admin', 'role': 'Security Analyst', 'status': 'Online', 'color': 'success', 'assignment': 'Incident response and oversight', 'assignedRole': 'admin'},
+          {'name': 'Lestiwege Mufutumari', 'role': 'Frontend Developer', 'status': 'Online', 'color': 'accent', 'assignment': 'Flutter UI and API integration', 'assignedRole': 'admin'},
+          {'name': 'Tadiwa Sharara', 'role': 'Project Planning', 'status': 'Online', 'color': 'warning', 'assignment': 'Scope, requirements, architecture', 'assignedRole': 'security_analyst'},
+          {'name': 'Bunu Anesu', 'role': 'Backend Development', 'status': 'Offline', 'color': 'grey', 'assignment': 'FastAPI APIs and business logic', 'assignedRole': 'incident_responder'},
+          {'name': 'Madamu Creig', 'role': 'Network Monitoring', 'status': 'Online', 'color': 'success', 'assignment': 'Traffic capture and preprocessing', 'assignedRole': 'threat_monitor'},
+          {'name': 'Davison Karamenti', 'role': 'Machine Learning', 'status': 'Online', 'color': 'accent', 'assignment': 'Anomaly detection model integration', 'assignedRole': 'testing'},
+          {'name': 'Dzimbanhete Bhunu', 'role': 'Threat Detection', 'status': 'Online', 'color': 'warning', 'assignment': 'Port scan and brute force detection', 'assignedRole': 'incident_responder'},
+          {'name': 'Tinashe Matyamaenza', 'role': 'Testing', 'status': 'Online', 'color': 'success', 'assignment': 'Unit, integration, and system testing', 'assignedRole': 'testing'},
+          {'name': 'Agatha Katiyo', 'role': 'Documentation', 'status': 'Offline', 'color': 'grey', 'assignment': 'Reports and presentation preparation', 'assignedRole': 'documentation'},
+        ];
+        _loading = false;
+      });
+    }
+  }
+
+  Color _getColor(String color) {
+    switch (color) {
+      case 'success': return AppTheme.successGreen;
+      case 'warning': return AppTheme.warningOrange;
+      case 'accent': return AppTheme.accentBlue;
+      default: return AppTheme.textGrey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: AccessControl.instance,
       builder: (context, _) {
-        final users = [
-          _TeamPerson('Admin', 'Security Analyst', 'Online', AppTheme.successGreen, 'Incident response and oversight', 'Admin'),
-          _TeamPerson('Lestiwege Mufutumari', 'Frontend Developer', 'Online', AppTheme.accentBlue, 'Flutter UI and API integration', 'Frontend Developer'),
-          _TeamPerson('Tadiwa Sharara', 'Project Planning', 'Online', AppTheme.warningOrange, 'Scope, requirements, architecture', 'Security Analyst'),
-          _TeamPerson('Bunu Anesu', 'Backend Development', 'Offline', AppTheme.textGrey, 'FastAPI APIs and business logic', 'Incident Responder'),
-          _TeamPerson('Madamu Creig', 'Network Monitoring', 'Online', AppTheme.successGreen, 'Traffic capture and preprocessing', 'Threat Monitor'),
-          _TeamPerson('Davison Karamenti', 'Machine Learning', 'Online', AppTheme.accentBlue, 'Anomaly detection model integration', 'Testing'),
-          _TeamPerson('Dzimbanhete Bhunu', 'Threat Detection', 'Online', AppTheme.warningOrange, 'Port scan and brute force detection', 'Incident Responder'),
-          _TeamPerson('Tinashe Matyamaenza', 'Testing', 'Online', AppTheme.successGreen, 'Unit, integration, and system testing', 'Testing'),
-          _TeamPerson('Agatha Katiyo', 'Documentation', 'Offline', AppTheme.textGrey, 'Reports and presentation preparation', 'Documentation'),
-        ];
+        final users = _teamMembers.map<_TeamPerson>((user) => _TeamPerson(
+          user['name'],
+          user['role'],
+          user['status'],
+          _getColor(user['color'] ?? 'success'),
+          user['assignment'],
+          user['assignedRole'],
+        )).toList();
 
         final workstreams = [
-          _Workstream('Project Planning', 'Tadiwa Sharara', 'Define scope, requirements, architecture', AppTheme.warningOrange, 'Security Analyst'),
-          _Workstream('Backend Development', 'Bunu Anesu', 'Build FastAPI APIs and logic', AppTheme.accentBlue, 'Incident Responder'),
-          _Workstream('Network Monitoring', 'Madamu Creig', 'Capture and preprocess network traffic', AppTheme.successGreen, 'Threat Monitor'),
-          _Workstream('Machine Learning', 'Davison Karamenti', 'Train and integrate anomaly detection model', AppTheme.accentBlue, 'Testing'),
-          _Workstream('Threat Detection', 'Dzimbanhete Bhunu', 'Implement port scan & brute force detection', AppTheme.warningOrange, 'Incident Responder'),
-          _Workstream('Frontend Development', 'Mufutumari Lestiwege', 'Build Flutter UI and integrate APIs', AppTheme.successGreen, 'Frontend Developer'),
-          _Workstream('Admin Features', 'Shared Team', 'Incident response and role management', const Color(0xFF9B59FF), 'Admin'),
-          _Workstream('Notifications', 'Shared Team', 'Email and SMS alerts integration', AppTheme.dangerRed, 'Admin'),
-          _Workstream('Testing', 'Tinashe Matyamaenza', 'Unit, integration and system testing', AppTheme.successGreen, 'Testing'),
-          _Workstream('Documentation', 'Agatha Katiyo', 'Prepare reports and presentation', AppTheme.textGrey, 'Documentation'),
+          _Workstream('Project Planning', 'Tadiwa Sharara', 'Define scope, requirements, architecture', AppTheme.warningOrange, 'security_analyst'),
+          _Workstream('Backend Development', 'Bunu Anesu', 'Build FastAPI APIs and logic', AppTheme.accentBlue, 'incident_responder'),
+          _Workstream('Network Monitoring', 'Madamu Creig', 'Capture and preprocess network traffic', AppTheme.successGreen, 'threat_monitor'),
+          _Workstream('Machine Learning', 'Davison Karamenti', 'Train and integrate anomaly detection model', AppTheme.accentBlue, 'testing'),
+          _Workstream('Threat Detection', 'Dzimbanhete Bhunu', 'Implement port scan & brute force detection', AppTheme.warningOrange, 'incident_responder'),
+          _Workstream('Frontend Development', 'Mufutumari Lestiwege', 'Build Flutter UI and integrate APIs', AppTheme.successGreen, 'admin'),
+          _Workstream('Admin Features', 'Shared Team', 'Incident response and role management', Color(0xFF9B59FF), 'admin'),
+          _Workstream('Notifications', 'Shared Team', 'Email and SMS alerts integration', AppTheme.dangerRed, 'admin'),
+          _Workstream('Testing', 'Tinashe Matyamaenza', 'Unit, integration and system testing', AppTheme.successGreen, 'testing'),
+          _Workstream('Documentation', 'Agatha Katiyo', 'Prepare reports and presentation', AppTheme.textGrey, 'documentation'),
         ];
 
         return _FeatureShell(

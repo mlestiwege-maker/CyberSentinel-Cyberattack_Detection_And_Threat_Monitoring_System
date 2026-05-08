@@ -146,3 +146,14 @@ linux/flutter/generated_plugin_registrant.h
 *.py[cod]
 .pytest_cache/
 .venv/
+
+# Database files
+*.db
+*.sqlite
+
+# ML models
+ml_models/
+
+# Environment variables
+.env
+.env.local

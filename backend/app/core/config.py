@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
 
-    DATABASE_URL: str = "postgresql://user:password@localhost:5432/cybersentinel_db"
+    DATABASE_URL: str = "sqlite:///./cybersentinel.db"
 
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"

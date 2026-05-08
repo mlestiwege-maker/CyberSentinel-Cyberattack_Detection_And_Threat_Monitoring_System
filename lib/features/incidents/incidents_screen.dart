@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../../core/theme.dart';
 import '../../services/access_control.dart';
+import '../../services/api_service.dart';
 
 class IncidentsScreen extends StatefulWidget {
   const IncidentsScreen({super.key});
@@ -14,19 +14,51 @@ class IncidentsScreen extends StatefulWidget {
 class _IncidentsScreenState extends State<IncidentsScreen> {
   late List<_IncidentItem> _incidents;
   final List<_IncidentEvent> _timeline = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _incidents = [
-      _IncidentItem('INC-2024-001', 'Open', 'Malware on workstation', AppTheme.dangerRed, DateTime.now()),
-      _IncidentItem('INC-2024-002', 'In Progress', 'Unauthorized login attempt', AppTheme.warningOrange, DateTime.now()),
-      _IncidentItem('INC-2024-003', 'Resolved', 'Phishing email reported', AppTheme.successGreen, DateTime.now()),
-      _IncidentItem('INC-2024-004', 'Open', 'Suspicious outbound traffic', AppTheme.dangerRed, DateTime.now()),
-    ];
+    _loadIncidents();
+  }
 
-    for (final incident in _incidents) {
-      _timeline.add(_IncidentEvent(incident.id, 'Loaded with status ${incident.status}', incident.status, incident.lastUpdated));
+  Future<void> _loadIncidents() async {
+    try {
+      final data = await ApiService.fetchIncidents();
+      setState(() {
+        _incidents = data.map<_IncidentItem>((json) => _IncidentItem(
+          json['incident_id'] ?? 'INC-000',
+          json['status'] ?? 'Open',
+          json['title'] ?? 'Untitled',
+          _getStatusColor(json['status'] ?? 'Open'),
+          DateTime.now(),
+        )).toList();
+        _loading = false;
+        for (final incident in _incidents) {
+          _timeline.add(_IncidentEvent(incident.id, 'Loaded with status ${incident.status}', incident.status, incident.lastUpdated));
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _incidents = [
+          _IncidentItem('INC-2024-001', 'Open', 'Malware on workstation', AppTheme.dangerRed, DateTime.now()),
+          _IncidentItem('INC-2024-002', 'In Progress', 'Unauthorized login attempt', AppTheme.warningOrange, DateTime.now()),
+          _IncidentItem('INC-2024-003', 'Resolved', 'Phishing email reported', AppTheme.successGreen, DateTime.now()),
+          _IncidentItem('INC-2024-004', 'Open', 'Suspicious outbound traffic', AppTheme.dangerRed, DateTime.now()),
+        ];
+        _loading = false;
+        for (final incident in _incidents) {
+          _timeline.add(_IncidentEvent(incident.id, 'Loaded with status ${incident.status}', incident.status, incident.lastUpdated));
+        }
+      });
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Resolved': return AppTheme.successGreen;
+      case 'In Progress': return AppTheme.warningOrange;
+      default: return AppTheme.dangerRed;
     }
   }
 
@@ -82,7 +114,10 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('INCIDENT HISTORY TIMELINE', style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
+                    const Text(
+                      'INCIDENT HISTORY TIMELINE',
+                      style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     ..._timeline.take(4).map(
                       (event) => Padding(

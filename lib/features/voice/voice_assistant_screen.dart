@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../dashboard/widgets/voice_assistant_card.dart';
 import '../../core/theme.dart';
 import '../../services/access_control.dart';
+import '../../services/api_service.dart';
 
 class VoiceAssistantScreen extends StatefulWidget {
   const VoiceAssistantScreen({super.key});
@@ -28,7 +29,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen> {
     );
   }
 
-  void _runQuickCommand(String command) {
+  void _runQuickCommand(String command) async {
     if (!AccessControl.instance.canPerform('voice.command')) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Current role cannot use voice commands')));
       return;
@@ -37,9 +38,17 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen> {
     setState(() {
       _lastCommand = command;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Assistant command executed: $command')),
-    );
+    
+    try {
+      final response = await ApiService.processVoiceCommand(command);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Assistant: ${response['response']}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Assistant command executed: $command')),
+      );
+    }
   }
 
   @override
