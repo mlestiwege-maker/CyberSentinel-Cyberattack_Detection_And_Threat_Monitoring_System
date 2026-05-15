@@ -24,12 +24,14 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+**/.dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
 /build/
+**/build/
 
 # Symbolication related
 app.*.symbols
@@ -62,6 +64,8 @@ app.*.map.json
 **/ios/**/Runner.xcodeproj/project.pbxproj
 **/ios/**/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
 **/ios/**/Runner.xcworkspace/
+**/ios/Runner/GeneratedPluginRegistrant.h
+**/ios/Runner/GeneratedPluginRegistrant.m
 **/macos/**/*.mode1v3
 **/macos/**/*.mode2v3
 **/macos/**/*.moved-aside
@@ -146,3 +150,7 @@ linux/flutter/generated_plugin_registrant.h
 *.py[cod]
 .pytest_cache/
 .venv/
+
+# Generated data/model artifacts
+*.db
+**/ml_models/

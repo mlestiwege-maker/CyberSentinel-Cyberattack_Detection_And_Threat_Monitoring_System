@@ -10,9 +10,9 @@ class DefensiveConsoleScreen extends StatelessWidget {
     return Container(
       color: AppTheme.primaryBlack,
       padding: const EdgeInsets.all(16),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
             'Defensive Console',
             style: TextStyle(

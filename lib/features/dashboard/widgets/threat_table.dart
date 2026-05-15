@@ -16,7 +16,8 @@ class _ThreatTableState extends State<ThreatTable> {
   @override
   void initState() {
     super.initState();
-    alertsFuture = ApiService.fetchAlerts();
+    // Trigger a fresh token-aware load so the dashboard doesn't hit 403 on protected alerts.
+    alertsFuture = ApiService.fetchThreatFeed();
   }
 
   Color getSeverityColor(String severity) {
@@ -119,7 +120,7 @@ class _ThreatTableState extends State<ThreatTable> {
       fontWeight: FontWeight.bold,
     );
 
-    return Row(
+    return const Row(
       children: [
         SizedBox(width: 60, child: Text('TIME', style: headerStyle)),
         SizedBox(width: 100, child: Text('TYPE', style: headerStyle)),
@@ -173,7 +174,7 @@ class _ThreatTableState extends State<ThreatTable> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: getSeverityColor(alert.severity).withOpacity(0.2),
+                color: getSeverityColor(alert.severity).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -191,7 +192,7 @@ class _ThreatTableState extends State<ThreatTable> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: getStatusColor(alert.status).withOpacity(0.2),
+                color: getStatusColor(alert.status).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(

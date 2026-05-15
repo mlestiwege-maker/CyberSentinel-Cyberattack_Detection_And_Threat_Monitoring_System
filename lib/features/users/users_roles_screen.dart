@@ -87,7 +87,7 @@ class UsersRolesScreen extends StatelessWidget {
                           .map(
                             (permission) => Chip(
                               label: Text(permission),
-                              backgroundColor: AppTheme.accentBlue.withOpacity(0.12),
+                              backgroundColor: AppTheme.accentBlue.withValues(alpha: 0.12),
                             ),
                           )
                           .toList(),
@@ -113,7 +113,7 @@ class UsersRolesScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: user.color.withOpacity(0.16),
+                        backgroundColor: user.color.withValues(alpha: 0.16),
                         child: Text(
                           user.name.characters.take(1).toString(),
                           style: TextStyle(color: user.color, fontWeight: FontWeight.bold),
@@ -144,7 +144,7 @@ class UsersRolesScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: user.color.withOpacity(0.12),
+                          color: user.color.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(user.status, style: TextStyle(color: user.color, fontWeight: FontWeight.bold, fontSize: 11)),

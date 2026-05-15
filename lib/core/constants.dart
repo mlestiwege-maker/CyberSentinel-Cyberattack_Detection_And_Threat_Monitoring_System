@@ -4,6 +4,8 @@ class AppConstants {
   static const String apiVersion = '/api/v1';
   
   // API Endpoints
+  static const String authLoginEndpoint = '$apiBaseUrl$apiVersion/auth/login';
+  static const String authMeEndpoint = '$apiBaseUrl$apiVersion/auth/me';
   static const String alertsEndpoint = '$apiBaseUrl$apiVersion/alerts';
   static const String threatsEndpoint = '$apiBaseUrl$apiVersion/threats';
   static const String incidentsEndpoint = '$apiBaseUrl$apiVersion/incidents';

@@ -92,7 +92,7 @@ class _DefensiveTerminalState extends State<DefensiveTerminal> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withOpacity(0.12),
+                  color: AppTheme.accentBlue.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text('TERMINAL', style: TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
@@ -101,7 +101,7 @@ class _DefensiveTerminalState extends State<DefensiveTerminal> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.successGreen.withOpacity(0.12),
+                  color: AppTheme.successGreen.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text('LIVE', style: TextStyle(color: AppTheme.successGreen, fontSize: 10)),
@@ -166,7 +166,7 @@ class _DefensiveTerminalState extends State<DefensiveTerminal> {
               return OutlinedButton(
                 onPressed: () => _runCommand(item['command']!),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppTheme.accentBlue.withOpacity(0.4)),
+                  side: BorderSide(color: AppTheme.accentBlue.withValues(alpha: 0.4)),
                   foregroundColor: AppTheme.accentBlue,
                 ),
                 child: Text(item['label']!, style: const TextStyle(fontSize: 11)),
