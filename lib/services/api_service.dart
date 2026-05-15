@@ -2,12 +2,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../core/constants.dart';
 import '../models/alert_model.dart';
+import 'app_state.dart';
 
 class ApiService {
   static Future<List<Alert>> fetchAlerts() async {
     try {
+      final token = AppState.instance.backendAuthToken;
       final response = await http.get(
         Uri.parse(AppConstants.alertsEndpoint),
+        headers: {
+          if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       ).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
@@ -29,8 +35,13 @@ class ApiService {
 
   static Future<dynamic> fetchThreats() async {
     try {
+      final token = AppState.instance.backendAuthToken;
       final response = await http.get(
         Uri.parse(AppConstants.threatsEndpoint),
+        headers: {
+          if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       ).timeout(
         const Duration(seconds: 10),
       );
@@ -42,6 +53,27 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error fetching threats: $e');
+    }
+  }
+
+  static Future<List<Alert>> fetchThreatFeed() async {
+    try {
+      final raw = await fetchThreats();
+      final list = raw is List ? raw : <dynamic>[];
+      return list
+          .whereType<Map<String, dynamic>>()
+          .map(Alert.fromThreatJson)
+          .toList();
+    } catch (e) {
+      throw Exception('Error fetching threat feed: $e');
+    }
+  }
+
+  static Future<List<Alert>> fetchGeoThreatFeed() async {
+    try {
+      return await fetchThreatFeed();
+    } catch (e) {
+      throw Exception('Error fetching geo threat feed: $e');
     }
   }
 

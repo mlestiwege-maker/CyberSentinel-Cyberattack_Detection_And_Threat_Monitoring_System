@@ -15,19 +15,25 @@ class TwilioService {
     final uri = Uri.parse('https://api.twilio.com/2010-04-01/Accounts/$accountSid/Messages.json');
     final credentials = base64Encode(utf8.encode('$accountSid:$authToken'));
 
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'Basic $credentials',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'From': from,
-        'To': to,
-        'Body': body,
-      },
-    );
+    try {
+      final response = await http
+          .post(
+            uri,
+            headers: {
+              'Authorization': 'Basic $credentials',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: {
+              'From': from,
+              'To': to,
+              'Body': body,
+            },
+          )
+          .timeout(const Duration(seconds: 15));
 
-    return response.statusCode >= 200 && response.statusCode < 300;
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (_) {
+      return false;
+    }
   }
 }

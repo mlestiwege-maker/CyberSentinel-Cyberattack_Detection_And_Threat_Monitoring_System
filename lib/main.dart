@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'core/theme.dart';
-import 'layout/main_layout.dart';
+import 'features/auth/auth_gate.dart';
 import 'services/access_control.dart';
 import 'services/app_config.dart';
 import 'services/app_state.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         darkTheme: AppTheme.darkTheme,
         themeMode: AppState.instance.isDarkMode ? ThemeMode.dark : ThemeMode.light,
         debugShowCheckedModeBanner: false,
-        home: const MainLayout(),
+        home: const AuthGate(),
       ),
     );
   }

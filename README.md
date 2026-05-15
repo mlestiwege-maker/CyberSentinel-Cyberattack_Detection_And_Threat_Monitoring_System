@@ -2,6 +2,10 @@
 
 CyberSentinel is a Flutter-based cybersecurity operations dashboard for threat visibility, incident response, team coordination, and alerting.
 
+The backend now automatically creates alerts when threats are detected and dispatches SMS/email notifications in the background so detections are not slowed down by delivery failures.
+
+The notification payload now uses a detailed CyberSentinel security alert template that includes the title, severity, timestamp, confidence, alert ID, attack type, source IP, and description.
+
 ## Project repository
 
 `https://github.com/mlestiwege-maker/CyberSentinel-Cyberattack_Detection_And_Threat_Monitoring_System`
@@ -48,6 +52,23 @@ CyberSentinel is a Flutter-based cybersecurity operations dashboard for threat v
 4. Enter destination number and message.
 5. Click **Send SMS**.
 
+When the backend detects a threat, it also sends the alert to the recipients configured in `backend/.env`:
+
+- `ALERT_SMS_RECIPIENTS` for mobile numbers
+- `ALERT_EMAIL_RECIPIENTS` for email addresses
+
+If `USE_MOCK_TWILIO=True`, SMS messages are written to `~/.cybersentinel/mock_sms.log`. If SMTP is not configured, email targets are written to `~/.cybersentinel/mock_email.log` so the system still records the alert path during local testing.
+
+The backend alert template is designed to match the production-style messages previously sent to your phone/email, for example:
+
+- `CyberSentinel Security Alert`
+- `Title: Security Alert: Brute Force`
+- `Severity: HIGH`
+- `Message: Threat detected from <source IP> ...`
+- `Details: Alert_Id, Attack_Type, Source_Ip, Confidence, Description`
+
+SMS notifications now use a multi-line phone-friendly format with the same threat details, including timestamp, alert ID, attack type, and description.
+
 ### 2) Email alerts to group members
 
 1. Open **Settings** → **Group Email Members**.
@@ -56,6 +77,17 @@ CyberSentinel is a Flutter-based cybersecurity operations dashboard for threat v
 4. Click the email button to launch your default mail client for all recipients.
 
 If no group email is added, the default fallback recipient is `mlestiwege@gmail.com`.
+
+## Real-time alert delivery
+
+The monitoring flow is automatic:
+
+1. The ML service scores traffic.
+2. Threats are stored in the database.
+3. An alert record is created for the dashboard.
+4. SMS and email notifications are queued in the background.
+
+This keeps the threat detection path responsive even if Twilio or SMTP is slow or unavailable.
 
 ## Project structure (high-level)
 
@@ -96,8 +128,10 @@ You can also run on web or another supported device target.
 
 ## Notes
 
-- Twilio credentials are currently stored in-memory for this UI prototype session.
+- Twilio credentials are currently stored in backend configuration for local testing.
 - For production, move secrets to secure storage / backend-managed configuration.
+- Use a real SMTP app password and a verified Twilio recipient to enable live delivery.
+- If you are using a Twilio trial account, the destination number must be verified in Twilio before live SMS delivery can succeed.
 
 ## License
 

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'sidebar.dart';
-import '../core/theme.dart';
-import '../features/dashboard/dashboard_screen.dart';
-import '../features/monitoring/monitoring_screen.dart';
-import '../features/monitoring/attack_map_screen.dart';
-import '../features/monitoring/defensive_console_screen.dart';
-import '../features/users/users_roles_screen.dart';
-import '../features/sms/twilio_screen.dart';
-import '../features/voice/voice_assistant_screen.dart';
-import '../features/incidents/incidents_screen.dart';
-import '../features/reports/reports_screen.dart';
-import '../features/settings/settings_screen.dart';
-import '../services/access_control.dart';
-import '../services/app_state.dart';
+import 'package:cybersentinel_frontend/core/theme.dart';
+import 'package:cybersentinel_frontend/features/dashboard/dashboard_screen.dart';
+import 'package:cybersentinel_frontend/features/incidents/incidents_screen.dart';
+import 'package:cybersentinel_frontend/features/monitoring/attack_map_screen.dart';
+import 'package:cybersentinel_frontend/features/monitoring/defensive_console_screen.dart';
+import 'package:cybersentinel_frontend/features/monitoring/monitoring_screen.dart';
+import 'package:cybersentinel_frontend/features/reports/reports_screen.dart';
+import 'package:cybersentinel_frontend/features/settings/settings_screen.dart';
+import 'package:cybersentinel_frontend/features/sms/twilio_screen.dart';
+import 'package:cybersentinel_frontend/features/users/users_roles_screen.dart';
+import 'package:cybersentinel_frontend/features/voice/voice_assistant_screen.dart';
+import 'package:cybersentinel_frontend/layout/sidebar.dart';
+import 'package:cybersentinel_frontend/services/access_control.dart';
+import 'package:cybersentinel_frontend/services/app_state.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -86,16 +86,16 @@ class _MainLayoutState extends State<MainLayout> {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withOpacity(0.14),
+                  color: AppTheme.accentBlue.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.accentBlue.withOpacity(0.2)),
+                  border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.2)),
                 ),
                 child: const Icon(Icons.security, color: AppTheme.accentBlue, size: 18),
               ),
               const SizedBox(width: 10),
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'CyberSentinel',
                     style: TextStyle(
@@ -149,9 +149,9 @@ class _MainLayoutState extends State<MainLayout> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.successGreen.withOpacity(0.1),
+              color: AppTheme.successGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppTheme.successGreen.withOpacity(0.25)),
+              border: Border.all(color: AppTheme.successGreen.withValues(alpha: 0.25)),
             ),
             child: Row(
               children: [
@@ -206,7 +206,7 @@ class _MainLayoutState extends State<MainLayout> {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: AppTheme.accentBlue.withOpacity(0.2),
+                  backgroundColor: AppTheme.accentBlue.withValues(alpha: 0.2),
                   child: const Text(
                     'LM',
                     style: TextStyle(
@@ -220,12 +220,24 @@ class _MainLayoutState extends State<MainLayout> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Admin', style: TextStyle(color: AppTheme.textWhite, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(
+                      AppState.instance.backendUserName.isNotEmpty ? AppState.instance.backendUserName : 'Admin',
+                      style: const TextStyle(color: AppTheme.textWhite, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
                     Text(AccessControl.instance.activeRole.toUpperCase(), style: const TextStyle(color: AppTheme.accentBlue, fontSize: 10)),
                   ],
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: 10),
+          _CircleIconButton(
+            icon: Icons.logout,
+            tooltip: 'Logout',
+            onTap: () {
+              AccessControl.instance.setRoleFromBackend('viewer');
+              AppState.instance.logout();
+            },
           ),
             ],
           ),

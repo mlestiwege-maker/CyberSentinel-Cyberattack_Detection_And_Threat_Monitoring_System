@@ -9,12 +9,13 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: AppState.instance,
+      animation: Listenable.merge([AppState.instance, AppConfig.instance]),
       builder: (context, _) => _FeatureShell(
         title: 'Settings',
         subtitle: 'Application preferences and security options',
         child: ListView(
           children: [
+            const _TwilioSetupBanner(),
             _SettingTile(
               title: 'Dark Mode',
               subtitle: 'Toggle light/dark administrator theme',
@@ -28,6 +29,7 @@ class SettingsScreen extends StatelessWidget {
               onChanged: AppState.instance.setNotificationsEnabled,
             ),
             const _InfoTile(title: 'API Endpoint', subtitle: 'http://127.0.0.1:8000'),
+            const PrimaryEmailSettings(),
             const TwilioSettings(),
             const GroupEmailSettings(),
             _SettingTile(
@@ -38,6 +40,69 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TwilioSetupBanner extends StatelessWidget {
+  const _TwilioSetupBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final cfg = AppConfig.instance;
+    final missing = <String>[
+      if (cfg.twilioAccountSid.isEmpty) 'Account SID',
+      if (cfg.twilioAuthToken.isEmpty) 'Auth Token',
+      if (cfg.twilioFromNumber.isEmpty) 'From Number',
+    ];
+
+    final isConfigured = missing.isEmpty;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isConfigured
+            ? AppTheme.successGreen.withValues(alpha: 0.08)
+            : AppTheme.warningOrange.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isConfigured
+              ? AppTheme.successGreen.withValues(alpha: 0.2)
+              : AppTheme.warningOrange.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isConfigured ? Icons.check_circle_outline : Icons.info_outline,
+            color: isConfigured ? AppTheme.successGreen : AppTheme.warningOrange,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isConfigured ? 'Twilio is configured' : 'Twilio setup is incomplete',
+                  style: TextStyle(
+                    color: isConfigured ? AppTheme.successGreen : AppTheme.warningOrange,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isConfigured
+                      ? 'SMS alerts can now be sent from the dashboard.'
+                      : 'Missing: ${missing.join(', ')}. Open Twilio Integration below and save the values to enable SMS alerts.',
+                  style: const TextStyle(color: AppTheme.textGrey, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -55,6 +120,82 @@ class GroupEmailSettings extends StatefulWidget {
 
   @override
   State<GroupEmailSettings> createState() => _GroupEmailSettingsState();
+}
+
+class PrimaryEmailSettings extends StatefulWidget {
+  const PrimaryEmailSettings({super.key});
+
+  @override
+  State<PrimaryEmailSettings> createState() => _PrimaryEmailSettingsState();
+}
+
+class _PrimaryEmailSettingsState extends State<PrimaryEmailSettings> {
+  final _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = AppConfig.instance.primaryEmail;
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final email = _emailController.text.trim();
+    if (email.isNotEmpty && !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter a valid primary email address')));
+      return;
+    }
+    setState(() {
+      AppConfig.instance.updatePrimaryEmail(email);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Primary alert email saved')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryBlack,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF2A3050)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Primary Alert Email', style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          const Text(
+            'This address receives email alerts when no group recipients are configured.',
+            style: TextStyle(color: AppTheme.textGrey, fontSize: 12),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _emailController,
+                  style: const TextStyle(color: AppTheme.textWhite),
+                  decoration: const InputDecoration(
+                    labelText: 'Primary email',
+                    labelStyle: TextStyle(color: AppTheme.textGrey),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(onPressed: _save, child: const Text('Save')),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _GroupEmailSettingsState extends State<GroupEmailSettings> {
@@ -154,14 +295,26 @@ class _TwilioSettingsState extends State<TwilioSettings> {
     _acctController.text = cfg.twilioAccountSid;
     _tokenController.text = cfg.twilioAuthToken;
     _fromController.text = cfg.twilioFromNumber;
+    _acctController.addListener(_onFieldChanged);
+    _tokenController.addListener(_onFieldChanged);
+    _fromController.addListener(_onFieldChanged);
   }
 
   @override
   void dispose() {
+    _acctController.removeListener(_onFieldChanged);
+    _tokenController.removeListener(_onFieldChanged);
+    _fromController.removeListener(_onFieldChanged);
     _acctController.dispose();
     _tokenController.dispose();
     _fromController.dispose();
     super.dispose();
+  }
+
+  void _onFieldChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _save() {
@@ -173,8 +326,51 @@ class _TwilioSettingsState extends State<TwilioSettings> {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Twilio settings saved (in-memory)')));
   }
 
+  bool get _isConfigured =>
+      _acctController.text.trim().isNotEmpty &&
+      _tokenController.text.trim().isNotEmpty &&
+      _fromController.text.trim().isNotEmpty;
+
+  Widget _buildField({
+    required String label,
+    required TextEditingController controller,
+    required bool missing,
+    bool obscureText = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      style: const TextStyle(color: AppTheme.textWhite),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: missing ? AppTheme.warningOrange : AppTheme.textGrey),
+        filled: true,
+        fillColor: missing ? AppTheme.warningOrange.withValues(alpha: 0.05) : Colors.transparent,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+            color: missing ? AppTheme.warningOrange.withValues(alpha: 0.45) : const Color(0xFF2A3050),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+            color: missing ? AppTheme.warningOrange : AppTheme.accentBlue,
+            width: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final missing = <String>[
+      if (_acctController.text.trim().isEmpty) 'Account SID',
+      if (_tokenController.text.trim().isEmpty) 'Auth Token',
+      if (_fromController.text.trim().isEmpty) 'From Number',
+    ];
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -188,27 +384,50 @@ class _TwilioSettingsState extends State<TwilioSettings> {
         children: [
           const Text('Twilio Integration', style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
-          TextField(
+          if (missing.isNotEmpty) ...[
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.warningOrange.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.warningOrange.withValues(alpha: 0.18)),
+              ),
+              child: Text(
+                'Missing: ${missing.join(', ')}',
+                style: const TextStyle(color: AppTheme.warningOrange, fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+          _buildField(
+            label: 'Account SID',
             controller: _acctController,
-            style: const TextStyle(color: AppTheme.textWhite),
-            decoration: const InputDecoration(labelText: 'Account SID', labelStyle: TextStyle(color: AppTheme.textGrey)),
+            missing: _acctController.text.trim().isEmpty,
           ),
           const SizedBox(height: 8),
-          TextField(
+          _buildField(
+            label: 'Auth Token',
             controller: _tokenController,
-            style: const TextStyle(color: AppTheme.textWhite),
-            decoration: const InputDecoration(labelText: 'Auth Token', labelStyle: TextStyle(color: AppTheme.textGrey)),
+            missing: _tokenController.text.trim().isEmpty,
           ),
           const SizedBox(height: 8),
-          TextField(
+          _buildField(
+            label: 'From Number',
             controller: _fromController,
-            style: const TextStyle(color: AppTheme.textWhite),
-            decoration: const InputDecoration(labelText: 'From Number', labelStyle: TextStyle(color: AppTheme.textGrey)),
+            missing: _fromController.text.trim().isEmpty,
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              ElevatedButton(onPressed: _save, child: const Text('Save')),
+              ElevatedButton(
+                onPressed: _save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isConfigured ? AppTheme.successGreen : AppTheme.warningOrange,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text(_isConfigured ? 'Save & Ready' : 'Save & Complete Setup'),
+              ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () {
@@ -217,8 +436,8 @@ class _TwilioSettingsState extends State<TwilioSettings> {
                   _fromController.clear();
                   AppConfig.instance.updateTwilio(accountSid: '', authToken: '', from: '');
                 },
-                child: const Text('Clear'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                child: const Text('Clear'),
               ),
             ],
           ),

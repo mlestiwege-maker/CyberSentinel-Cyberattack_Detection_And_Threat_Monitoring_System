@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../dashboard/widgets/voice_assistant_card.dart';
-import '../../core/theme.dart';
-import '../../services/access_control.dart';
+import 'package:cybersentinel_frontend/core/theme.dart';
+import 'package:cybersentinel_frontend/features/dashboard/widgets/voice_assistant_card.dart';
+import 'package:cybersentinel_frontend/services/access_control.dart';
 
 class VoiceAssistantScreen extends StatefulWidget {
   const VoiceAssistantScreen({super.key});

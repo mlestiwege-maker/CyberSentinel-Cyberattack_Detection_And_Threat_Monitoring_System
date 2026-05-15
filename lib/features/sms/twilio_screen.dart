@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../dashboard/widgets/twilio_panel.dart';
 import '../../core/theme.dart';
-import '../../services/access_control.dart';
 import '../../services/app_config.dart';
+import '../../services/app_state.dart';
 
 class TwilioScreen extends StatelessWidget {
   const TwilioScreen({super.key});
@@ -10,9 +10,10 @@ class TwilioScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([AppConfig.instance, AccessControl.instance]),
+      animation: Listenable.merge([AppConfig.instance, AppState.instance]),
       builder: (context, _) {
         final recipients = AppConfig.instance.groupEmails;
+        final isAuthenticated = AppState.instance.isAuthenticated && AppState.instance.backendAuthToken.isNotEmpty;
 
         return Container(
           color: AppTheme.primaryBlack,
@@ -33,12 +34,12 @@ class TwilioScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withOpacity(0.08),
+                  color: AppTheme.accentBlue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.accentBlue.withOpacity(0.2)),
+                  border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.2)),
                 ),
                 child: Text(
-                  'Active role: ${AccessControl.instance.activeRole}',
+                  isAuthenticated ? 'Authenticated session active' : 'Please sign in to send alerts',
                   style: const TextStyle(color: AppTheme.accentBlue, fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -66,21 +67,21 @@ class TwilioScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              if (!AccessControl.instance.canPerform('twilio.send'))
+              if (!isAuthenticated)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.warningOrange.withOpacity(0.08),
+                    color: AppTheme.warningOrange.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.warningOrange.withOpacity(0.2)),
+                    border: Border.all(color: AppTheme.warningOrange.withValues(alpha: 0.2)),
                   ),
                   child: const Text(
-                    'Current role cannot send SMS/email alerts.',
+                    'Please log in again to send SMS/email alerts.',
                     style: TextStyle(color: AppTheme.warningOrange, fontSize: 12),
                   ),
                 ),
-              if (!AccessControl.instance.canPerform('twilio.send')) const SizedBox(height: 12),
+              if (!isAuthenticated) const SizedBox(height: 12),
               const Expanded(child: TwilioPanel()),
             ],
           ),
