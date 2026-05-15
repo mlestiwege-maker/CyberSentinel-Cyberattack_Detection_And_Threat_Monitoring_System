@@ -109,9 +109,9 @@ class DashboardScreen extends StatelessWidget {
         final isWide = constraints.maxWidth > 1000;
 
         if (isWide) {
-          return Row(
+          return const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(
                 child: SizedBox(
                   height: 460,
@@ -184,9 +184,9 @@ class DashboardScreen extends StatelessWidget {
         final isWide = constraints.maxWidth > 1100;
 
         if (isWide) {
-          return Row(
+          return const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(child: SizedBox(height: 260, child: IncidentsOverview())),
               SizedBox(width: 12),
               Expanded(child: SizedBox(height: 260, child: TopAttackTypes())),
@@ -239,9 +239,9 @@ class DashboardScreen extends StatelessWidget {
         final isWide = constraints.maxWidth > 1100;
 
         if (isWide) {
-          return Row(
+          return const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Expanded(child: SizedBox(height: 260, child: VoiceAssistantCard())),
               SizedBox(width: 12),
               Expanded(child: SizedBox(height: 360, child: DefensiveTerminal())),

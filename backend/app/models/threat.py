@@ -35,3 +35,34 @@ class Threat(Base):
     is_resolved    = Column(Integer, default=0)
     detected_at    = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     resolved_at    = Column(DateTime(timezone=True), nullable=True)
+
+    @property
+    def geo(self):
+        features = self.features or {}
+        return features.get("geo", {}) if isinstance(features, dict) else {}
+
+    @property
+    def location(self):
+        geo = self.geo
+        city = geo.get("city") or ""
+        country = geo.get("country") or ""
+        parts = [part for part in [city, country] if part]
+        return ", ".join(parts) if parts else "Unknown"
+
+    @property
+    def city(self):
+        return self.geo.get("city") or "Unknown"
+
+    @property
+    def country(self):
+        return self.geo.get("country") or "Unknown"
+
+    @property
+    def latitude(self):
+        value = self.geo.get("lat")
+        return float(value) if value is not None else None
+
+    @property
+    def longitude(self):
+        value = self.geo.get("lng")
+        return float(value) if value is not None else None

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/theme.dart';
+import 'package:cybersentinel_frontend/core/theme.dart';
 
 class Sidebar extends StatelessWidget {
   final int selectedIndex;
@@ -39,9 +39,9 @@ class Sidebar extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.accentBlue.withOpacity(0.16),
+                    color: AppTheme.accentBlue.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppTheme.accentBlue.withOpacity(0.25)),
+                    border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.25)),
                   ),
                   child: const Icon(Icons.security, color: AppTheme.accentBlue),
                 ),
@@ -67,8 +67,8 @@ class Sidebar extends StatelessWidget {
               ],
             ),
           ),
-          Divider(
-            color: const Color(0xFF2A3050),
+          const Divider(
+            color: Color(0xFF2A3050),
             height: 1,
           ),
           Expanded(
@@ -81,7 +81,7 @@ class Sidebar extends StatelessWidget {
 
                 return Container(
                   color: isSelected
-                      ? AppTheme.accentBlue.withOpacity(0.1)
+                      ? AppTheme.accentBlue.withValues(alpha: 0.1)
                       : Colors.transparent,
                   child: Material(
                     color: Colors.transparent,
@@ -101,9 +101,9 @@ class Sidebar extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.successGreen.withOpacity(0.14),
+                                  color: AppTheme.successGreen.withValues(alpha: 0.14),
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: AppTheme.successGreen.withOpacity(0.25)),
+                                  border: Border.all(color: AppTheme.successGreen.withValues(alpha: 0.25)),
                                 ),
                                 child: Text(
                                   item.$3!,
@@ -131,7 +131,7 @@ class Sidebar extends StatelessWidget {
                       onTap: () => onItemSelected(index),
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 16),
-                      hoverColor: AppTheme.accentBlue.withOpacity(0.05),
+                      hoverColor: AppTheme.accentBlue.withValues(alpha: 0.05),
                       selected: isSelected,
                     ),
                   ),
@@ -139,8 +139,8 @@ class Sidebar extends StatelessWidget {
               },
             ),
           ),
-          Divider(
-            color: const Color(0xFF2A3050),
+          const Divider(
+            color: Color(0xFF2A3050),
             height: 1,
           ),
           Padding(
@@ -148,10 +148,10 @@ class Sidebar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.accentBlue.withOpacity(0.1),
+                color: AppTheme.accentBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: AppTheme.accentBlue.withOpacity(0.3),
+                  color: AppTheme.accentBlue.withValues(alpha: 0.3),
                 ),
               ),
               child: const Column(

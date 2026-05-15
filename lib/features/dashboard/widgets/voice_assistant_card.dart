@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
+import 'package:cybersentinel_frontend/core/theme.dart';
 
 class VoiceAssistantCard extends StatelessWidget {
   const VoiceAssistantCard({super.key});
@@ -37,14 +37,14 @@ class VoiceAssistantCard extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          AppTheme.accentBlue.withOpacity(0.9),
-                          AppTheme.accentBlue.withOpacity(0.15),
+                          AppTheme.accentBlue.withValues(alpha: 0.9),
+                          AppTheme.accentBlue.withValues(alpha: 0.15),
                           Colors.transparent,
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.accentBlue.withOpacity(0.35),
+                          color: AppTheme.accentBlue.withValues(alpha: 0.35),
                           blurRadius: 24,
                           spreadRadius: 8,
                         ),

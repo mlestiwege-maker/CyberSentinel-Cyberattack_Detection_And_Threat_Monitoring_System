@@ -17,6 +17,29 @@ class Settings(BaseSettings):
     MODEL_PATH: str = "./ml_models/threat_model.pkl"
     CONFIDENCE_THRESHOLD: float = 0.75
 
+    DEFAULT_ADMIN_NAME: str = "CyberSentinel Admin"
+    DEFAULT_ADMIN_EMAIL: str = "mlestiwege@gmail.com"
+    DEFAULT_ADMIN_PASSWORD: str = "ChangeMe123!"
+
+    # SMTP Email Configuration
+    SMTP_SERVER: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = "your-email@gmail.com"
+    SMTP_PASSWORD: str = "your-app-password"
+    SMTP_USE_TLS: bool = True
+
+    # Twilio configuration (can be overridden by .env)
+    TWILIO_ACCOUNT_SID: str = ""
+    TWILIO_AUTH_TOKEN: str = ""
+    TWILIO_FROM_NUMBER: str = ""
+    # When True, backend will simulate SMS sends instead of calling Twilio.
+    # Useful for local testing with Twilio trial accounts.
+    USE_MOCK_TWILIO: bool = True
+
+    # Default recipients for automated alerts (can be overridden via .env)
+    ALERT_SMS_RECIPIENTS: List[str] = []
+    ALERT_EMAIL_RECIPIENTS: List[str] = []
+
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
 
     class Config:

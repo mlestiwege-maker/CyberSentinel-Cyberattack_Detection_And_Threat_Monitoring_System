@@ -90,6 +90,21 @@ class AccessControl extends ChangeNotifier {
     return _permissions[activeRole]?.contains(permission) ?? false;
   }
 
+  void setRoleFromBackend(String backendRole) {
+    final normalized = backendRole.trim().toLowerCase();
+    final mappedRole = switch (normalized) {
+      'admin' => 'Admin',
+      'security analyst' => 'Security Analyst',
+      'analyst' => 'Security Analyst',
+      'incident responder' => 'Incident Responder',
+      'threat monitor' => 'Threat Monitor',
+      'documentation' => 'Documentation',
+      'viewer' => 'Documentation',
+      _ => activeRole,
+    };
+    setRole(mappedRole);
+  }
+
   Set<String> permissionsFor(String role) {
     return _permissions[role] ?? const {};
   }

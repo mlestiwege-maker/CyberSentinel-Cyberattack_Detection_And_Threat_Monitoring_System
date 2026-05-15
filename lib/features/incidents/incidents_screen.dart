@@ -129,7 +129,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: incident.color.withOpacity(0.15),
+                          backgroundColor: incident.color.withValues(alpha: 0.15),
                           child: Text(incident.id.substring(4, 7), style: TextStyle(color: incident.color, fontSize: 10)),
                         ),
                         const SizedBox(width: 14),

@@ -9,6 +9,7 @@ class AppConfig extends ChangeNotifier {
 
   static final AppConfig instance = AppConfig._internal();
 
+  String primaryEmail = '';
   String twilioAccountSid = '';
   String twilioAuthToken = '';
   String twilioFromNumber = '';
@@ -16,6 +17,7 @@ class AppConfig extends ChangeNotifier {
 
   Future<void> load() async {
     final state = await AppStorage.readState();
+    primaryEmail = state['primaryEmail'] as String? ?? '';
     twilioAccountSid = state['twilioAccountSid'] as String? ?? '';
     twilioAuthToken = state['twilioAuthToken'] as String? ?? '';
     twilioFromNumber = state['twilioFromNumber'] as String? ?? '';
@@ -29,11 +31,18 @@ class AppConfig extends ChangeNotifier {
 
   Future<void> _persist() async {
     final state = await AppStorage.readState();
+    state['primaryEmail'] = primaryEmail;
     state['twilioAccountSid'] = twilioAccountSid;
     state['twilioAuthToken'] = twilioAuthToken;
     state['twilioFromNumber'] = twilioFromNumber;
     state['groupEmails'] = groupEmails;
     await AppStorage.writeState(state);
+  }
+
+  void updatePrimaryEmail(String email) {
+    primaryEmail = email.trim().toLowerCase();
+    notifyListeners();
+    unawaited(_persist());
   }
 
   void updateTwilio({required String accountSid, required String authToken, required String from}) {

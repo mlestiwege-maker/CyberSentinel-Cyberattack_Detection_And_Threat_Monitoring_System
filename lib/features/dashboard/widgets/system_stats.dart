@@ -48,7 +48,7 @@ class SystemStats extends StatelessWidget {
               CircularProgressIndicator(
                 value: double.parse(percentage.replaceAll('%', '')) / 100,
                 color: color,
-                backgroundColor: color.withOpacity(0.1),
+                backgroundColor: color.withValues(alpha: 0.1),
                 strokeWidth: 4,
               ),
               Text(
