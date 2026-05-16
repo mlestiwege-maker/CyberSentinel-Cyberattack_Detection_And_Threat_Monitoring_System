@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      # For local development, create backend/.env with real values (do not commit it)
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./backend:/app:rw
+    restart: unless-stopped

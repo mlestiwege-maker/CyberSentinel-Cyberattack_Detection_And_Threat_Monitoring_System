@@ -48,6 +48,13 @@ def test_dispatch_notifications_fallback(tmp_path, monkeypatch):
     # Ensure logs are written to temp home
     monkeypatch.setenv("HOME", str(tmp_path))
 
+    # Ensure recipients exist so code paths execute
+    import app.services.threat_service as ts
+    monkeypatch.setattr(ts.settings, "ALERT_SMS_RECIPIENTS", ["+15551234567"], raising=False)
+    monkeypatch.setattr(ts.settings, "ALERT_EMAIL_RECIPIENTS", ["alert@example.com"], raising=False)
+    # Ensure we exercise the Twilio failure code path (not the mock path)
+    monkeypatch.setattr(ts.settings, "USE_MOCK_TWILIO", False, raising=False)
+
     # Make email send fail
     class FakeEmailService:
         def send_email(self, to_emails, subject, body, html_body=None):
@@ -59,7 +66,8 @@ def test_dispatch_notifications_fallback(tmp_path, monkeypatch):
     def fake_send(*, account_sid, auth_token, from_number, to_number, message, tries=3):
         raise RuntimeError("twilio down")
 
-    monkeypatch.setattr("app.services.twilio_gateway.send_sms_with_retry", fake_send)
+    # patch the reference used by threat_service (it imports send_sms_with_retry)
+    monkeypatch.setattr("app.services.threat_service.send_sms_with_retry", fake_send)
 
     # Call _dispatch_notifications directly
     from app.services.threat_service import _dispatch_notifications
