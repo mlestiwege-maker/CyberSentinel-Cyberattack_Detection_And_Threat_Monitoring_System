@@ -138,6 +138,7 @@ You can also run on web or another supported device target.
 - Runbook: `docs/RUNBOOK.md`
 - Docker/K8s guide: `docs/DOCKER.md`
 - Security baseline: `docs/SECURITY.md`
+- Free hosting guide: `docs/FREE_HOSTING.md`
 
 ## License
 
