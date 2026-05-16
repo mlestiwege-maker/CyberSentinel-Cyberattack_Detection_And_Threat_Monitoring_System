@@ -15,6 +15,13 @@ import time
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 Starting CyberSentinel API...")
+    issues = settings.insecure_config_issues()
+    if issues:
+        message = "; ".join(issues)
+        if settings.ENFORCE_STRICT_SECURITY_IN_PROD and settings.ENVIRONMENT.lower() == "production":
+            raise RuntimeError(f"Refusing startup due to insecure configuration: {message}")
+        print(f"⚠️ Security warning: {message}")
+
     await init_db()
     db = SessionLocal()
     try:
@@ -67,6 +74,17 @@ async def metrics_middleware(request: Request, call_next):
         http_request_duration_seconds.labels(request.method, request.url.path).observe(elapsed)
     except Exception:
         pass
+    return response
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
     return response
 
 

@@ -5,6 +5,7 @@ from typing import List
 class Settings(BaseSettings):
     API_TITLE: str = "CyberSentinel API"
     API_VERSION: str = "1.0.0"
+    ENVIRONMENT: str = "development"
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
 
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ENFORCE_STRICT_SECURITY_IN_PROD: bool = True
 
     MODEL_PATH: str = "./ml_models/threat_model.pkl"
     CONFIDENCE_THRESHOLD: float = 0.75
@@ -41,6 +43,18 @@ class Settings(BaseSettings):
     ALERT_EMAIL_RECIPIENTS: List[str] = []
 
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
+
+    # Password policy
+    MIN_PASSWORD_LENGTH: int = 10
+    REQUIRE_STRONG_PASSWORD: bool = True
+
+    def insecure_config_issues(self) -> List[str]:
+        issues: List[str] = []
+        if self.SECRET_KEY in {"change-me-in-production", "CHANGE_ME_SECRET_KEY", ""}:
+            issues.append("SECRET_KEY is using an insecure default value")
+        if self.DEFAULT_ADMIN_PASSWORD in {"ChangeMe123!", "", "password", "admin123"}:
+            issues.append("DEFAULT_ADMIN_PASSWORD appears weak/default")
+        return issues
 
     class Config:
         env_file = ".env"

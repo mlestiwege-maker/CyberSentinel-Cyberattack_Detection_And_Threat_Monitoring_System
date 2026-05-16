@@ -133,6 +133,12 @@ You can also run on web or another supported device target.
 - Use a real SMTP app password and a verified Twilio recipient to enable live delivery.
 - If you are using a Twilio trial account, the destination number must be verified in Twilio before live SMS delivery can succeed.
 
+## Operations and security docs
+
+- Runbook: `docs/RUNBOOK.md`
+- Docker/K8s guide: `docs/DOCKER.md`
+- Security baseline: `docs/SECURITY.md`
+
 ## License
 
 Part of a university group cybersecurity project.
