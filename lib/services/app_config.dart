@@ -46,9 +46,9 @@ class AppConfig extends ChangeNotifier {
   }
 
   void updateTwilio({required String accountSid, required String authToken, required String from}) {
-    twilioAccountSid = accountSid;
-    twilioAuthToken = authToken;
-    twilioFromNumber = from;
+    twilioAccountSid = accountSid.trim();
+    twilioAuthToken = authToken.trim();
+    twilioFromNumber = from.trim();
     notifyListeners();
     unawaited(_persist());
   }

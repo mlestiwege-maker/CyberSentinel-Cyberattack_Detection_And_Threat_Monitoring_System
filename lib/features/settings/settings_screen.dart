@@ -287,6 +287,7 @@ class _TwilioSettingsState extends State<TwilioSettings> {
   final _acctController = TextEditingController();
   final _tokenController = TextEditingController();
   final _fromController = TextEditingController();
+  bool _obscureToken = true;
 
   @override
   void initState() {
@@ -318,6 +319,13 @@ class _TwilioSettingsState extends State<TwilioSettings> {
   }
 
   void _save() {
+    if (!_isSidValid || !_isFromValid || _tokenController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fix Twilio fields before saving')),
+      );
+      return;
+    }
+
     AppConfig.instance.updateTwilio(
       accountSid: _acctController.text.trim(),
       authToken: _tokenController.text.trim(),
@@ -331,11 +339,27 @@ class _TwilioSettingsState extends State<TwilioSettings> {
       _tokenController.text.trim().isNotEmpty &&
       _fromController.text.trim().isNotEmpty;
 
+  bool get _isSidValid {
+    final sid = _acctController.text.trim();
+    final sidRegex = RegExp(r'^AC[a-zA-Z0-9]{32}$');
+    // Twilio Account SID usually starts with AC and has 34 chars total.
+    return sid.isEmpty || sidRegex.hasMatch(sid);
+  }
+
+  bool get _isFromValid {
+    final from = _fromController.text.trim();
+    final e164Regex = RegExp(r'^\+[1-9]\d{7,14}$');
+    return from.isEmpty || e164Regex.hasMatch(from);
+  }
+
   Widget _buildField({
     required String label,
     required TextEditingController controller,
     required bool missing,
+    String? helperText,
+    String? errorText,
     bool obscureText = false,
+    Widget? suffixIcon,
   }) {
     return TextField(
       controller: controller,
@@ -344,6 +368,10 @@ class _TwilioSettingsState extends State<TwilioSettings> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: missing ? AppTheme.warningOrange : AppTheme.textGrey),
+        helperText: helperText,
+        helperStyle: const TextStyle(color: AppTheme.textGrey, fontSize: 11),
+        errorText: errorText,
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: missing ? AppTheme.warningOrange.withValues(alpha: 0.05) : Colors.transparent,
         enabledBorder: OutlineInputBorder(
@@ -404,24 +432,41 @@ class _TwilioSettingsState extends State<TwilioSettings> {
             label: 'Account SID',
             controller: _acctController,
             missing: _acctController.text.trim().isEmpty,
+            helperText: 'Format: ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            errorText: _isSidValid ? null : 'Invalid SID format',
           ),
           const SizedBox(height: 8),
           _buildField(
             label: 'Auth Token',
             controller: _tokenController,
             missing: _tokenController.text.trim().isEmpty,
+            obscureText: _obscureToken,
+            helperText: 'Your token is stored locally in app state.',
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscureToken ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                color: AppTheme.textGrey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureToken = !_obscureToken;
+                });
+              },
+            ),
           ),
           const SizedBox(height: 8),
           _buildField(
             label: 'From Number',
             controller: _fromController,
             missing: _fromController.text.trim().isEmpty,
+            helperText: 'E.164 format, e.g. +263712246543',
+            errorText: _isFromValid ? null : 'Use international format (+countrycode...)',
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               ElevatedButton(
-                onPressed: _save,
+                onPressed: (_isSidValid && _isFromValid && _tokenController.text.trim().isNotEmpty) ? _save : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isConfigured ? AppTheme.successGreen : AppTheme.warningOrange,
                   foregroundColor: Colors.white,
