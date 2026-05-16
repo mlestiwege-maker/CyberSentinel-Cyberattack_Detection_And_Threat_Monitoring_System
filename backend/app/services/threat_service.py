@@ -10,7 +10,8 @@ from app.models.alert import Alert
 from app.core.config import settings
 from app.services.geoip_service import geolocate_ip
 from app.services.email_service import EmailService
-from app.services.twilio_gateway import send_sms as send_twilio_sms
+from app.services.twilio_gateway import send_sms as send_twilio_sms, send_sms_with_retry
+from app.utils.retry import retry_call
 try:
     from twilio.rest import Client as TwilioClient
 except Exception:
@@ -107,24 +108,26 @@ def _dispatch_notifications(*, alert_message: str, sms_message: str, threat_type
                 settings.SMTP_USERNAME != "your-email@gmail.com"
                 and settings.SMTP_PASSWORD != "your-app-password"
             ):
-                try:
-                    email_service = EmailService(
-                        smtp_server=settings.SMTP_SERVER,
-                        smtp_port=settings.SMTP_PORT,
-                        sender_email=settings.SMTP_USERNAME,
-                        sender_password=settings.SMTP_PASSWORD,
-                        use_tls=settings.SMTP_USE_TLS,
-                    )
-                    # Use the richer notification payload when SMTP is available.
-                    # The plain text version is written into the email body.
-                    email_ok = email_service.send_email(
-                        to_emails=email_recipients,
-                        subject=f"CyberSentinel Security Alert: {threat_type.replace('_', ' ').title()} ({_severity_label(severity)})",
-                        body=alert_message,
-                        html_body=html_body,
-                    )
-                except Exception as exc:
-                    logger.error("Email dispatch failed: %s", exc)
+                    try:
+                        email_service = EmailService(
+                            smtp_server=settings.SMTP_SERVER,
+                            smtp_port=settings.SMTP_PORT,
+                            sender_email=settings.SMTP_USERNAME,
+                            sender_password=settings.SMTP_PASSWORD,
+                            use_tls=settings.SMTP_USE_TLS,
+                        )
+                        # Wrap email send in retry with exponential backoff
+                        def _send_email():
+                            return email_service.send_email(
+                                to_emails=email_recipients,
+                                subject=f"CyberSentinel Security Alert: {threat_type.replace('_', ' ').title()} ({_severity_label(severity)})",
+                                body=alert_message,
+                                html_body=html_body,
+                            )
+
+                        email_ok = retry_call(_send_email, exceptions=(Exception,), tries=getattr(settings, "NOTIFICATION_RETRIES", 3))
+                    except Exception as exc:
+                        logger.error("Email dispatch failed after retries: %s", exc)
 
             if not email_ok:
                 _append_json_line(
@@ -156,21 +159,28 @@ def _dispatch_notifications(*, alert_message: str, sms_message: str, threat_type
             else:
                 for to_number in sms_recipients:
                     try:
+                        # Prefer official Twilio SDK if available, but still apply retry logic.
                         if TwilioClient is not None:
-                            client = TwilioClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-                            sent = client.messages.create(body=sms_message, from_=settings.TWILIO_FROM_NUMBER, to=to_number)
-                            logger.info("SMS sent via Twilio to %s (sid=%s)", to_number, sent.sid)
+                            def _twilio_sdk_send():
+                                client = TwilioClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                                return client.messages.create(body=sms_message, from_=settings.TWILIO_FROM_NUMBER, to=to_number)
+
+                            sent = retry_call(_twilio_sdk_send, exceptions=(Exception,), tries=getattr(settings, "NOTIFICATION_RETRIES", 3))
+                            sid = getattr(sent, "sid", None)
+                            logger.info("SMS sent via Twilio SDK to %s (sid=%s)", to_number, sid)
                         else:
-                            sent = send_twilio_sms(
+                            # Use REST helper with retry wrapper
+                            sent = send_sms_with_retry(
                                 account_sid=settings.TWILIO_ACCOUNT_SID,
                                 auth_token=settings.TWILIO_AUTH_TOKEN,
                                 from_number=settings.TWILIO_FROM_NUMBER,
                                 to_number=to_number,
                                 message=sms_message,
+                                tries=getattr(settings, "NOTIFICATION_RETRIES", 3),
                             )
                             logger.info("SMS sent via Twilio REST API to %s (sid=%s)", to_number, sent.sid)
                     except Exception as exc:
-                        logger.error("Twilio send failed for %s: %s", to_number, exc)
+                        logger.error("Twilio send failed for %s after retries: %s", to_number, exc)
                         _append_json_line(
                             Path.home() / ".cybersentinel" / "mock_sms.log",
                             {
@@ -179,6 +189,7 @@ def _dispatch_notifications(*, alert_message: str, sms_message: str, threat_type
                                 "message": sms_message,
                                 "user": settings.DEFAULT_ADMIN_EMAIL,
                                 "fallback": "twilio-failed",
+                                "error": str(exc),
                             },
                         )
 

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import requests
+from app.utils.retry import retry_call
 
 
 @dataclass
@@ -49,3 +50,11 @@ def send_sms(*, account_sid: str, auth_token: str, from_number: str, to_number: 
         )
 
     raise RuntimeError(f"Twilio send failed ({response.status_code}): {response.text.strip()}")
+
+
+def send_sms_with_retry(*, account_sid: str, auth_token: str, from_number: str, to_number: str, message: str, tries: int = 3) -> TwilioSendResult:
+    """Send SMS with retries/backoff. Returns TwilioSendResult on success or raises the last error."""
+    def _call():
+        return send_sms(account_sid=account_sid, auth_token=auth_token, from_number=from_number, to_number=to_number, message=message)
+
+    return retry_call(_call, exceptions=(RuntimeError, requests.RequestException), tries=tries)
