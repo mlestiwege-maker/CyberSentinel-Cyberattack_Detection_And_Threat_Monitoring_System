@@ -18,6 +18,12 @@ except Exception:
     TwilioClient = None
 
 logger = logging.getLogger(__name__)
+from app.metrics import (
+    notification_email_sent,
+    notification_email_failed,
+    notification_sms_sent,
+    notification_sms_failed,
+)
 
 
 def _severity_label(severity: str) -> str:
@@ -126,8 +132,22 @@ def _dispatch_notifications(*, alert_message: str, sms_message: str, threat_type
                             )
 
                         email_ok = retry_call(_send_email, exceptions=(Exception,), tries=getattr(settings, "NOTIFICATION_RETRIES", 3))
+                        if email_ok:
+                            try:
+                                notification_email_sent.labels(severity).inc()
+                            except Exception:
+                                pass
+                        else:
+                            try:
+                                notification_email_failed.labels(severity).inc()
+                            except Exception:
+                                pass
                     except Exception as exc:
                         logger.error("Email dispatch failed after retries: %s", exc)
+                        try:
+                            notification_email_failed.labels(severity).inc()
+                        except Exception:
+                            pass
 
             if not email_ok:
                 _append_json_line(
@@ -179,6 +199,10 @@ def _dispatch_notifications(*, alert_message: str, sms_message: str, threat_type
                                 tries=getattr(settings, "NOTIFICATION_RETRIES", 3),
                             )
                             logger.info("SMS sent via Twilio REST API to %s (sid=%s)", to_number, sent.sid)
+                            try:
+                                notification_sms_sent.labels(severity).inc()
+                            except Exception:
+                                pass
                     except Exception as exc:
                         logger.error("Twilio send failed for %s after retries: %s", to_number, exc)
                         _append_json_line(
@@ -192,6 +216,10 @@ def _dispatch_notifications(*, alert_message: str, sms_message: str, threat_type
                                 "error": str(exc),
                             },
                         )
+                        try:
+                            notification_sms_failed.labels(severity).inc()
+                        except Exception:
+                            pass
 
     except Exception as exc:
         logger.error("Notification dispatch thread failed: %s", exc)

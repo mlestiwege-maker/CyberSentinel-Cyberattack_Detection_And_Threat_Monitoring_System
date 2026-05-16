@@ -7,6 +7,9 @@ from app.api.v1.router import api_router
 from app.db.database import init_db, close_db
 from app.services.auth_service import ensure_default_admin
 from app.db.database import SessionLocal
+from fastapi import Request, Response
+from app.metrics import metrics_response, http_request_duration_seconds
+import time
 
 
 @asynccontextmanager
@@ -46,6 +49,25 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api/v1")
+
+
+@app.get("/metrics", include_in_schema=False)
+def metrics():
+    content, content_type = metrics_response()
+    return Response(content=content, media_type=content_type)
+
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    elapsed = time.time() - start
+    try:
+        # labels: method and path
+        http_request_duration_seconds.labels(request.method, request.url.path).observe(elapsed)
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/", tags=["Info"])
