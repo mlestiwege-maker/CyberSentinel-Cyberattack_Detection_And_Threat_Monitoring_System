@@ -10,6 +10,23 @@ BACKEND_DIR="$ROOT_DIR/backend"
 BACKEND_OWNED=false
 PYTHON="/usr/bin/python3"
 
+port_is_free() {
+	local port="$1"
+	"$PYTHON" - "$port" <<'PY'
+import socket, sys
+port = int(sys.argv[1])
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.settimeout(0.2)
+try:
+	sock.bind(("127.0.0.1", port))
+except OSError:
+	sys.exit(1)
+finally:
+	sock.close()
+sys.exit(0)
+PY
+}
+
 cleanup() {
 	if [[ "$BACKEND_OWNED" == "true" ]] && [[ -n "${BACKEND_PID:-}" ]] && kill -0 "$BACKEND_PID" 2>/dev/null; then
 		kill "$BACKEND_PID" 2>/dev/null || true
@@ -56,12 +73,29 @@ cd "$ROOT_DIR"
 echo "[CyberSentinel] Installing Flutter dependencies..."
 flutter pub get
 
-# If a prebuilt web build exists, serve it as a static site (safe and fast).
-if [[ -d "$ROOT_DIR/build/web" ]]; then
-	echo "[CyberSentinel] Serving prebuilt web frontend at http://127.0.0.1:5000"
-	(cd "$ROOT_DIR/build/web" && python3 -m http.server 5000) &
-	FRONTEND_PID=$!
-else
-	echo "[CyberSentinel] Starting frontend on Linux..."
-	flutter run -d linux
+# Prefer the web build for local runs and Vercel parity.
+# If it is missing, generate it once before serving.
+if [[ ! -f "$ROOT_DIR/build/web/index.html" ]]; then
+	echo "[CyberSentinel] build/web is missing, building Flutter web..."
+	flutter build web --release --no-wasm-dry-run
 fi
+
+FRONTEND_PORT="${CYBER_SENTINEL_FRONTEND_PORT:-5000}"
+if ! port_is_free "$FRONTEND_PORT"; then
+	for candidate in 5001 5002 5003 5004 5005 5006 5007 5008 5009 5010; do
+		if port_is_free "$candidate"; then
+			FRONTEND_PORT="$candidate"
+			break
+		fi
+	done
+fi
+
+if ! port_is_free "$FRONTEND_PORT"; then
+	echo "[CyberSentinel] No free frontend port found in 5000-5010. Stop the existing static server and try again."
+	exit 1
+fi
+
+echo "[CyberSentinel] Serving web frontend at http://127.0.0.1:${FRONTEND_PORT}"
+(cd "$ROOT_DIR/build/web" && python3 -m http.server "$FRONTEND_PORT" --bind 127.0.0.1) &
+FRONTEND_PID=$!
+wait "$FRONTEND_PID"
