@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../core/constants.dart';
 
 class NotificationService {
-  static const String _baseUrl = 'https://cybersentinel-cyberattack-detection-and.onrender.com/api/v1';
+  static String get _baseUrl => '${AppConstants.apiBaseUrl}${AppConstants.apiVersion}';
 
   /// Send SMS via backend (which may use mock mode or Twilio based on server config)
   static Future<bool> sendSmsAlert({

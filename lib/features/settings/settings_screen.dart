@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../services/app_config.dart';
 import '../../services/app_state.dart';
@@ -28,7 +29,7 @@ class SettingsScreen extends StatelessWidget {
               value: AppState.instance.notificationsEnabled,
               onChanged: AppState.instance.setNotificationsEnabled,
             ),
-            const _InfoTile(title: 'API Endpoint', subtitle: 'https://cybersentinel-cyberattack-detection-and.onrender.com'),
+            _InfoTile(title: 'API Endpoint', subtitle: AppConstants.apiBaseUrl),
             const PrimaryEmailSettings(),
             const TwilioSettings(),
             const GroupEmailSettings(),
