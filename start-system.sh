@@ -14,6 +14,11 @@ cleanup() {
 	if [[ "$BACKEND_OWNED" == "true" ]] && [[ -n "${BACKEND_PID:-}" ]] && kill -0 "$BACKEND_PID" 2>/dev/null; then
 		kill "$BACKEND_PID" 2>/dev/null || true
 	fi
+
+	# Kill frontend server if we started one
+	if [[ -n "${FRONTEND_PID:-}" ]] && kill -0 "$FRONTEND_PID" 2>/dev/null; then
+		kill "$FRONTEND_PID" 2>/dev/null || true
+	fi
 }
 
 trap cleanup EXIT INT TERM
@@ -51,5 +56,12 @@ cd "$ROOT_DIR"
 echo "[CyberSentinel] Installing Flutter dependencies..."
 flutter pub get
 
-echo "[CyberSentinel] Starting frontend on Linux..."
-flutter run -d linux
+# If a prebuilt web build exists, serve it as a static site (safe and fast).
+if [[ -d "$ROOT_DIR/build/web" ]]; then
+	echo "[CyberSentinel] Serving prebuilt web frontend at http://127.0.0.1:5000"
+	(cd "$ROOT_DIR/build/web" && python3 -m http.server 5000) &
+	FRONTEND_PID=$!
+else
+	echo "[CyberSentinel] Starting frontend on Linux..."
+	flutter run -d linux
+fi
