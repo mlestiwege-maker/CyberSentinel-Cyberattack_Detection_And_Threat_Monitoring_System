@@ -124,8 +124,11 @@ class MLService:
 
     def _load(self):
         if not self.ml_enabled:
-            print("⚠️  Optional ML libs not installed; using heuristic threat detection.")
+            print("🔧 ML Service initialized in FALLBACK mode (numpy/sklearn unavailable)")
+            print("   Using rule-based threat detection instead of ML model")
             return
+        
+        print("✅ ML Service initialized with FULL ML stack")
 
         scaler_path = settings.MODEL_PATH.replace("threat_model", "scaler")
         if os.path.exists(settings.MODEL_PATH) and os.path.exists(scaler_path):
