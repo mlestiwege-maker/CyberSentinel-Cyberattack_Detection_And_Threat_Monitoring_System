@@ -28,7 +28,7 @@ class SettingsScreen extends StatelessWidget {
               value: AppState.instance.notificationsEnabled,
               onChanged: AppState.instance.setNotificationsEnabled,
             ),
-            const _InfoTile(title: 'API Endpoint', subtitle: 'http://127.0.0.1:8000'),
+            const _InfoTile(title: 'API Endpoint', subtitle: 'https://cybersentinel-cyberattack-detection-and.onrender.com'),
             const PrimaryEmailSettings(),
             const TwilioSettings(),
             const GroupEmailSettings(),

@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'CyberSentinel';
-  static const String apiBaseUrl = 'http://127.0.0.1:8000';
+  static const String apiBaseUrl = 'https://cybersentinel-cyberattack-detection-and.onrender.com';
   static const String apiVersion = '/api/v1';
   
   // API Endpoints
