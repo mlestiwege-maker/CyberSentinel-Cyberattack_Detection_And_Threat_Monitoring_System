@@ -1,12 +1,8 @@
 {
-  "buildCommand": "flutter build web --release",
+  "buildCommand": "",
   "outputDirectory": "build/web",
-  "framework": "flutter",
-  "installCommand": "flutter pub get",
-  "env": {
-    "FLUTTER_CHANNEL": "stable",
-    "FLUTTER_VERSION": "3.38.3"
-  },
+  "framework": "static",
+  "installCommand": "",
   "routes": [
     {
       "src": "/(.*)",
