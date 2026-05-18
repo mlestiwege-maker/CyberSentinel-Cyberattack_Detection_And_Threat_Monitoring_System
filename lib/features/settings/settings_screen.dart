@@ -53,12 +53,12 @@ class _TwilioSetupBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final cfg = AppConfig.instance;
     final missing = <String>[
-      if (cfg.twilioAccountSid.isEmpty) 'Account SID',
-      if (cfg.twilioAuthToken.isEmpty) 'Auth Token',
-      if (cfg.twilioFromNumber.isEmpty) 'From Number',
+      if (!cfg.backendTwilioConfigured && cfg.twilioAccountSid.isEmpty) 'Account SID',
+      if (!cfg.backendTwilioConfigured && cfg.twilioAuthToken.isEmpty) 'Auth Token',
+      if (!cfg.backendTwilioConfigured && cfg.twilioFromNumber.isEmpty) 'From Number',
     ];
 
-    final isConfigured = missing.isEmpty;
+    final isConfigured = cfg.backendTwilioConfigured || missing.isEmpty;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

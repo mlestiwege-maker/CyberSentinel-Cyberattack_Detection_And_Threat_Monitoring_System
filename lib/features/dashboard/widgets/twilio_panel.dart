@@ -266,14 +266,16 @@ class _TwilioPanelState extends State<TwilioPanel> {
       animation: Listenable.merge([AppConfig.instance, AppState.instance]),
       builder: (context, _) {
         final cfg = AppConfig.instance;
-        final hasTwilioConfig = cfg.twilioAccountSid.isNotEmpty && cfg.twilioAuthToken.isNotEmpty && cfg.twilioFromNumber.isNotEmpty;
+        final hasTwilioConfig = cfg.backendTwilioConfigured || (cfg.twilioAccountSid.isNotEmpty && cfg.twilioAuthToken.isNotEmpty && cfg.twilioFromNumber.isNotEmpty);
         final isAuthenticated = AppState.instance.isAuthenticated && AppState.instance.backendAuthToken.isNotEmpty;
         final canSend = isAuthenticated;
         final canTest = isAuthenticated;
         final sidDisplay = cfg.twilioAccountSid.isEmpty
-            ? 'Not configured'
+            ? (cfg.backendTwilioConfigured ? 'Configured on backend' : 'Not configured')
             : '${cfg.twilioAccountSid.substring(0, 4)}…${cfg.twilioAccountSid.substring(cfg.twilioAccountSid.length - 4)}';
-        final fromDisplay = cfg.twilioFromNumber.isEmpty ? 'Not configured' : cfg.twilioFromNumber;
+        final fromDisplay = cfg.twilioFromNumber.isEmpty
+            ? (cfg.backendTwilioConfigured ? 'Configured on backend' : 'Not configured')
+            : cfg.twilioFromNumber;
         final missingFields = <String>[
           if (cfg.twilioAccountSid.isEmpty) 'Account SID',
           if (cfg.twilioAuthToken.isEmpty) 'Auth Token',
@@ -286,10 +288,10 @@ class _TwilioPanelState extends State<TwilioPanel> {
             final status = snapshot.data;
             final smsStatus = status?['sms'] as Map<String, dynamic>?;
             final emailStatus = status?['email'] as Map<String, dynamic>?;
-            final smsMode = (smsStatus?['mode'] as String?) ?? (AppConfig.instance.twilioAccountSid.isNotEmpty ? 'twilio' : 'mock');
-            final smsConfigured = smsStatus?['configured'] == true;
+            final smsMode = (smsStatus?['mode'] as String?) ?? (cfg.backendTwilioConfigured ? 'twilio' : 'mock');
+            final smsConfigured = smsStatus?['configured'] == true || cfg.backendSmsConfigured;
             final emailConfigured = emailStatus?['configured'] == true;
-            final deliveryHealth = (status?['delivery_health'] as String?) ?? 'manual';
+            final deliveryHealth = (status?['delivery_health'] as String?) ?? cfg.backendDeliveryHealth;
 
             return Container(
               padding: const EdgeInsets.all(16),

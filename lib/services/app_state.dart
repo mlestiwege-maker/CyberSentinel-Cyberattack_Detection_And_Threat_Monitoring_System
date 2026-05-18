@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'app_config.dart';
 import 'app_storage.dart';
 
 class AppState extends ChangeNotifier {
@@ -81,6 +82,7 @@ class AppState extends ChangeNotifier {
     backendUserRole = role;
     notifyListeners();
     unawaited(_persist());
+    unawaited(AppConfig.instance.refreshBackendStatus(token: token));
   }
 
   void logout() {
@@ -91,5 +93,6 @@ class AppState extends ChangeNotifier {
     backendUserRole = '';
     notifyListeners();
     unawaited(_persist());
+    AppConfig.instance.clearBackendStatus();
   }
 }

@@ -231,20 +231,28 @@ async def get_notification_status(
         settings.SMTP_USERNAME != "your-email@gmail.com"
         and settings.SMTP_PASSWORD != "your-app-password"
     )
+    twilio_configured = bool(
+        settings.TWILIO_ACCOUNT_SID
+        and settings.TWILIO_AUTH_TOKEN
+        and settings.TWILIO_FROM_NUMBER
+    )
+    sms_recipients = getattr(settings, 'ALERT_SMS_RECIPIENTS', []) or []
+    email_recipients = getattr(settings, 'ALERT_EMAIL_RECIPIENTS', []) or []
 
     return {
         "sms": {
             "mode": sms_mode,
-            "configured": bool(getattr(settings, 'ALERT_SMS_RECIPIENTS', []) or []),
-            "recipients": getattr(settings, 'ALERT_SMS_RECIPIENTS', []) or [],
+            "configured": bool(sms_recipients) and twilio_configured,
+            "twilio_configured": twilio_configured,
+            "recipients": sms_recipients,
             "recent": _read_last_json_lines(sms_log_path, limit=3),
         },
         "email": {
             "configured": email_configured,
-            "recipients": getattr(settings, 'ALERT_EMAIL_RECIPIENTS', []) or [],
+            "recipients": email_recipients,
             "recent": _read_last_json_lines(email_log_path, limit=3),
         },
-        "delivery_health": "automatic" if (getattr(settings, 'ALERT_SMS_RECIPIENTS', []) or [] or getattr(settings, 'ALERT_EMAIL_RECIPIENTS', []) or []) else "manual",
+        "delivery_health": "automatic" if (email_configured or (twilio_configured and sms_recipients)) else "manual",
     }
 
 
